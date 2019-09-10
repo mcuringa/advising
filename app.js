@@ -72,7 +72,7 @@ const dataTest = (req, res) => {
 }
 app.get('/api/test', dataTest);
 
-app.get('/privacy', (req, res)=>{res.send("privacy")} );
+// app.get('/privacy', (req, res)=>{res.send("privacy")} );
 
 
 // =========================================== routes
@@ -87,6 +87,12 @@ app.get('/api/:collection/:id', restGet);
 app.post('/api/:collection', restPost);
 app.put('/api/:collection/:id', restPut);
 // app.delete('/api/:collection/:id', restDel);
+
+
+/* final catch-all route to index.html defined last */
+app.get('/*', (req, res) => {
+  res.sendFile(__dirname + "/web/build/index.html");
+})
 
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
