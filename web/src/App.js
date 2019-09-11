@@ -79,7 +79,11 @@ function Header(props) {
 
 function Students(props) {
   return (
-    <div>This is students</div>
+    <div>
+      This will show a list of all of the students, with checkboxes
+      to filter on: active, graduated, AUI, AllCampus, etc...
+
+    </div>
   )
 }
 
