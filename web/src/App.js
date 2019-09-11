@@ -38,7 +38,7 @@ function Login(props) {
   )
 }
 
-class Authorized extends React.Component() {
+class Authorized extends React.Component {
   constructor(props) {
     super(props);
 
