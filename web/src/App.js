@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import GoogleLogin from 'react-google-login';
 import PageScreen from "./pages";
+import CourseScreen from "./courses";
 
 
 
@@ -17,6 +18,7 @@ function App() {
         <Header />
         <Authorized />
 
+        <Route exact path="/courses" component={CourseScreen} />
         <Route exact path="/students" component={Students} />
         <Route exact path="/privacy"
                render={(props) => <PageScreen {...props} page="privacy" />}/>
@@ -100,6 +102,9 @@ function TopNav(props) {
         <ul className="navbar-nav">
           <li className="nav-item">
             <Link className="nav-link" to="/">Home</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/courses">Courses</Link>
           </li>
           <li className="nav-item">
             <Link className="nav-link" to="/students">Students</Link>
