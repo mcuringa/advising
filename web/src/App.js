@@ -1,14 +1,18 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import GoogleLogin from 'react-google-login';
+import _ from "lodash";
+import net from "./net";
 import PageScreen from "./pages";
 import CourseScreen from "./courses";
 
 
+const googleClientId ='743074626096-7ead9s7ltunfmc90fodd024r2uct0g1q.apps.googleusercontent.com';
+const googleAPIKey = "AIzaSyBDFhZE_qr85vhCw3b6m7AJM0zYAF7mzzY";
 
 
-const responseGoogle = (response) => {
-  console.log(response);
+
+const googleListener = (x) => {
+  console.log("auth update:", x);
 }
 
 function App() {
@@ -18,6 +22,7 @@ function App() {
         <Header />
         <Authorized />
 
+        <Route exact path="/auth" component={HandleGoogleAuth} />
         <Route exact path="/courses" component={CourseScreen} />
         <Route exact path="/students" component={Students} />
         <Route exact path="/privacy"
@@ -28,16 +33,47 @@ function App() {
 }
 
 
-function Login(props) {
+const HandleGoogleAuth = (props) => {
+  const hash = window.location.hash;
+  console.log("hash:", hash);
+  const params = hash.split("&");
+  console.log("params:", params);
+
+  let responseHeaders = {};
+  const addHeader = (pair)=> {
+    let p = pair.split("=");
+    let key = decodeURI(p[0]);
+    let val = decodeURI(p[1]);
+    responseHeaders[key] = val;
+  }
+
+  _.each(params, addHeader);
+  console.log("response headers:", responseHeaders);
+  const token = responseHeaders["access_token"];
+  const url = "https://www.googleapis.com/auth/userinfo.profile?access_token=" + token;
+
+
+  net.get(url).then((p)=>{console.log("got profile: ", p)}).catch((e)=>{console.log("error with profile:", e)});
+
+  return (<p>Thank you for logging in.</p>)
+}
+
+// http://localhost:3000/auth#state=pass-through%20value&access_token=ya29.GluIB3IoqhmrAw_OjHPaHBeA_IWtmpZUlJ2pWJxwPrrfxxgxAxhMSh_ymD90m83JbUljXL05yg5V19qjXxTm0vAVXaT7drw9g2Wcq23vu19PfA6znnCbeIeThNLq&token_type=Bearer&expires_in=3600&scope=email%20profile%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email%20openid&authuser=0&hd=adelphi.edu&session_state=62e85def5a95c993cc29267dff7bfe4ff8db19bf..bf9f&prompt=consent
+const GoogleAuthForm = (props)=>{
+  const oauth2Endpoint = "https://accounts.google.com/o/oauth2/v2/auth";
+  const authRedirect = "http://localhost:3000/auth";
   return (
-    <GoogleLogin
-      clientId="743074626096-h1es8cpfglegj8cfoe41m6d2aornksqs.apps.googleusercontent.com"
-      buttonText="Login"
-      onSuccess={props.success}
-      onFailure={props.failure}
-      cookiePolicy={'single_host_origin'}
-    />
-  )
+    <form method="GET" action={oauth2Endpoint}>
+      <input type="hidden" name="client_id" value={googleClientId} />
+      <input type="hidden" name="redirect_uri" value={authRedirect} />
+      <input type="hidden" name="response_type" value="token" />
+      <input type="hidden" name="scope" value="profile email openid" />
+      <input type="hidden" name="include_granted_scopes" value="true" />
+      <input type="hidden" name="state" value="pass-through value" />
+      Adelphi email: <input type="email" name="login_hint" /><br />
+      <button type="submit">Log in with Google</button>
+    </form>
+  );
 }
 
 class Authorized extends React.Component {
@@ -58,12 +94,15 @@ class Authorized extends React.Component {
   }
 
   loginFailure(u) {
-    console.log("login worked", u);
+
+    console.log("login failed", u);
   }
 
   render() {
+
     if(!this.state.user) {
-      return <Login success={this.loginSuccess} failure={this.loginFailure} />
+
+      return ( <GoogleAuthForm /> );
     }
     else {
       return (<p>authorized</p>)
