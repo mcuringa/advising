@@ -4,6 +4,7 @@ import _ from "lodash";
 import net from "./net";
 import PageScreen from "./pages";
 import CourseScreen from "./courses";
+import StudentScreen from "./students";
 
 
 const googleClientId ='743074626096-7ead9s7ltunfmc90fodd024r2uct0g1q.apps.googleusercontent.com';
@@ -24,7 +25,7 @@ function App() {
 
         <Route exact path="/auth" component={HandleGoogleAuth} />
         <Route exact path="/courses" component={CourseScreen} />
-        <Route exact path="/students" component={Students} />
+        <Route exact path="/students" component={StudentScreen} />
         <Route exact path="/privacy"
                render={(props) => <PageScreen {...props} page="privacy" />}/>
       </div>
