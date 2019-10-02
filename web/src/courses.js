@@ -1,5 +1,6 @@
 import React from "react";
 import _ from "lodash";
+import { Link } from "react-router-dom";
 
 
 
@@ -34,10 +35,43 @@ class CourseScreen extends React.Component {
   }
 }
 
+class CourseListScreen extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      course: {},
+      loading: true
+    };
+
+  }
+
+  componentWillMount() {
+    const url = "/api/courses/" + props.params.id;
+    const loadCourses = (data)=> {
+      this.setState({ course: data, loading: false });
+    }
+    fetch(url).then(r =>r.json()).then(loadCourses);
+  }
+
+  render() {
+    return (
+      <div>
+        <h3>{this.state.course.title}</h3>
+      </div>
+    )
+  }
+}
+
 function CourseItem(course)  {
   return (
-    <li key={course.course_num}>{course.course_num} {course.course_title}</li>
+    <li key={course.course_num}>
+      <Link className="nav-link" to={"/courses/" + course._id}>
+        {course.course_num} {course.course_title}
+      </Link>
+    </li>
   )
 }
 
 export default CourseScreen;
+export { CourseListScreen };
