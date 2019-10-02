@@ -16,7 +16,6 @@ class CourseScreen extends React.Component {
   }
 
   componentWillMount() {
-    super(props)
     const url = "/api/courses";
     const loadCourses = (data)=> {
       this.setState({ courses: data, loading: false });
