@@ -47,7 +47,7 @@ class CourseListScreen extends React.Component {
   }
 
   componentWillMount() {
-    const url = "/api/courses/" + props.params.id;
+    const url = "/api/courses/" + this.props.params.id;
     const loadCourses = (data)=> {
       this.setState({ course: data, loading: false });
     }
