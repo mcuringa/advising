@@ -54,6 +54,18 @@ class CourseListScreen extends React.Component {
     fetch(url).then(r =>r.json()).then(loadCourses);
   }
 
+  onSubmit() {
+    const url = "/api/courses/" + this.props.params.id;
+    fetch(url, {mode: "cors", method: "PUT"});
+  }
+
+  handleChange(e) {
+    e.preventDefault();
+    let course = this.state.course_num;
+    course[e.target.id] = e.target.value;
+    this.setState({ course: course });
+  }
+
   render() {
     return (
       <div>
