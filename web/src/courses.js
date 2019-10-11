@@ -1,8 +1,10 @@
 import React from "react";
 import _ from "lodash";
 import { Link, Router } from "react-router-dom";
+import net from "./net.js";
 
-
+// testing
+// test 2
 
 class CourseScreen extends React.Component {
   constructor(props) {
@@ -17,15 +19,19 @@ class CourseScreen extends React.Component {
 
   componentWillMount() {
     const url = "/api/courses";
-    const loadCourses = (data)=> {
-      this.setState({ courses: data, loading: false });
+    const loadCourses = (response)=> {
+      console.log("courses loaded");
+      console.log("course json data:", response);
+      this.setState({ courses: response.data, loading: false });
     }
-    fetch(url).then(r =>r.json()).then(loadCourses);
+    // fetch(url).then(r =>r.json()).then(loadCourses);
+    net.get(url).then(loadCourses);
   }
 
 
   render() {
     const li = _.map(this.state.courses, CourseItem);
+    console.log("course list:", li);
     return (
       <div>
         <h3>Courses</h3>
@@ -35,33 +41,6 @@ class CourseScreen extends React.Component {
   }
 }
 
-class CourseListScreen extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      course: {},
-      loading: true
-    };
-
-  }
-
-  componentWillMount() {
-    const url = "/api/courses/" + this.props.params.id;
-    const loadCourses = (data)=> {
-      this.setState({ course: data, loading: false });
-    }
-    fetch(url).then(r =>r.json()).then(loadCourses);
-  }
-
-  render() {
-    return (
-      <div>
-        <h3>{this.state.course.title}</h3>
-      </div>
-    )
-  }
-}
 
 function CourseItem(course)  {
   return (
@@ -77,20 +56,39 @@ class CoursePage extends React.Component {
   constructor(props) {
     super(props);
     this.id = props.match.params.id;
-    this.state = ( course.num: {} );
+    this.state = {
+      "course": {},
+      "registration": {},
+      "loading": true
+    };
   }
 
   componentWillMount() {
-    const url = "/api/courses/" + this.props.params.id;
-    const loadCourses = (data)=> {
-      this.setState({ courses: data, loading: false });
+
+    const courseUrl = "/api/courses/" + this.id;
+    const loadCourse = (response)=> {
+      const course = response.data;
+      console.log("data", course);
+      this.setState({ course: course });
+      loadReg(course.course_num);
     }
-    fetch(url).then(r =>r.json()).then(loadCourses);
+
+    net.get(courseUrl).then(loadCourse);
+
+    const loadReg = (course_num)=> {
+      const regUrl = "/api/registration?course_num=" + course_num;
+      const saveReg = (response)=> {
+        console.log("loaded course reg data");
+        console.log(response.data);
+        this.setState({ registration: response.data});
+      }
+      net.get(regUrl).then(saveReg);
+    }
   }
 
   onSubmit() {
-    const url = "/api/courses/" + this.props.params.id;
-    fetch(url, { mode: "cors", method: "PUT"});
+    const url = "/api/courses/" + this.id;
+    fetch(url);
   }
 
   handleChange(e) {
@@ -102,15 +100,15 @@ class CoursePage extends React.Component {
 
   render() {
     const course = this.state.course;
+    console.log("course", course);
     return (
       <section id="CoursePage">
-        <form id="CourseForm" onSubmit={this.onSubmit}>
-          {course.name}
-        </form>
+        <h1>{course.course_title}</h1>
+
       </section>
     )
   }
 }
 
 export default CourseScreen;
-export { CourseListScreen };
+export { CoursePage };

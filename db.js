@@ -6,18 +6,18 @@ const store = process.env.store;
 let client = null;
 async function connect(collection) {
 
-  console.log("----------------------------------\n\n");
-  console.log("url", url);
-  console.log("\n\n----------------------------------");
+  // console.log("----------------------------------\n\n");
+  // console.log("url", url);
+  // console.log("\n\n----------------------------------");
 
 
   const client = new MongoClient(url, { useNewUrlParser: true });
-  console.log("got client...", client);
+  // console.log("got client...", client);
 
   let p = (resolve, reject) => {
-    console.log("connecting...");
+    // console.log("connecting...");
     client.connect().then(() => {
-      console.log("connected...");
+      // console.log("connected...");
       let col = client.db(store).collection(collection);
       resolve(col);
     }).catch(resolve);
@@ -33,11 +33,11 @@ async function findAll(collection) {
 async function find(collection, query) {
 
   const p = (resolve, reject)=> {
-    console.log("finding...", query);
+    // console.log("finding...", query);
     const search = (col)=> {
-      console.log("collection:", col);
+      // console.log("collection:", col);
       let data = col.find(query).toArray();
-      console.log("got data", data);
+      // console.log("got data", data);
       data.then(resolve);
     }
 
@@ -48,9 +48,9 @@ async function find(collection, query) {
 }
 
 async function get(collection, id) {
-  console.log("getting object:", id);
+  // console.log("getting object:", id);
   id = ObjectId(id);
-  console.log("objectid:", id);
+  // console.log("objectid:", id);
   const col = await connect(collection);
   return col.findOne({ _id: id });
 }

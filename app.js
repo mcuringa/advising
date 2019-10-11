@@ -24,7 +24,9 @@ app.use(cookieParser());
 
 const restList = async (req, res) => {
   console.log("rest listparams:", req.params);
-  let data = await db.findAll(req.params.collection);
+  console.log("rest query string:", req.query);
+  let data = await db.find(req.params.collection, req.query);
+  // let data = await db.findAll(req.params.collection);
   res.json(data);
 }
 

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import _ from "lodash";
 import net from "./net";
 import PageScreen from "./pages";
-import CourseScreen, { CourseListScreen } from "./courses";
+import CourseScreen, { CoursePage } from "./courses";
 import StudentScreen from "./students";
 
 
@@ -25,7 +25,7 @@ function App() {
 
         <Route exact path="/auth" component={HandleGoogleAuth} />
         <Route exact path="/courses" component={CourseScreen} />
-        <Route path="/courses/:id" component={CourseScreen} />
+        <Route path="/courses/:id" component={CoursePage} />
         <Route exact path="/students" component={StudentScreen} />
         <Route exact path="/privacy"
                render={(props) => <PageScreen {...props} page="privacy" />}/>

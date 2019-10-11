@@ -36,7 +36,6 @@ const doFetch = async (method, url, data) => {
     params.body = data;
   }
 
-
   const promiseToReadResponse = (resolve, reject)=> {
     const handleResponse = (r) => {
       const handleJson = (json)=> {
