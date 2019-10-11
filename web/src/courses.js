@@ -77,7 +77,7 @@ class CoursePage extends React.Component {
   constructor(props) {
     super(props);
     this.id = props.match.params.id;
-    this.state = ( courses: {} );
+    this.state = ( Courses: {} );
   }
 
   componentWillMount() {
@@ -97,7 +97,7 @@ class CoursePage extends React.Component {
     e.preventDefault();
     let course = this.state.courses;
     course[e.target.id] = e.target.value;
-    this.setState({ courses: courses });
+    this.setState({ course: course });
   }
 
   render() {
@@ -105,7 +105,7 @@ class CoursePage extends React.Component {
     return (
       <section id="CoursePage">
         <form id="CourseForm" onSubmit={this.onSubmit}>
-          {courses.name}
+          {course.name}
         </form>
       </section>
     )
