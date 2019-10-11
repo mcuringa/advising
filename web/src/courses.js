@@ -73,17 +73,17 @@ function CourseItem(course)  {
   )
 }
 
-class CoursePage extends Component {
+class CoursePage extends React.Component {
   constructor(props) {
     super(props);
     this.id = props.match.params.id;
-    this.state = ( course: {} );
+    this.state = ( courses: {} );
   }
 
   componentWillMount() {
     const url = "/api/courses/" + this.props.params.id;
     const loadCourses = (data)=> {
-      this.setState({ course: data, loading: false });
+      this.setState({ courses: data, loading: false });
     }
     fetch(url).then(r =>r.json()).then(loadCourses);
   }
@@ -95,9 +95,9 @@ class CoursePage extends Component {
 
   handleChange(e) {
     e.preventDefault();
-    let course = this.state.course;
+    let course = this.state.courses;
     course[e.target.id] = e.target.value;
-    this.setState({ course: course });
+    this.setState({ courses: courses });
   }
 
   render() {
@@ -105,7 +105,7 @@ class CoursePage extends Component {
     return (
       <section id="CoursePage">
         <form id="CourseForm" onSubmit={this.onSubmit}>
-          {course.name}
+          {courses.name}
         </form>
       </section>
     )
