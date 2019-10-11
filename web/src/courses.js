@@ -54,18 +54,6 @@ class CourseListScreen extends React.Component {
     fetch(url).then(r =>r.json()).then(loadCourses);
   }
 
-  onSubmit() {
-    const url = "/api/courses/" + this.id;
-    fetch(url, {mode: "cors", method: "PUT"});
-  }
-
-  handleChange(e) {
-    e.preventDefault();
-    let course = this.state.course_num;
-    course[e.target.id] = e.target.value;
-    this.setState({ course: course });
-  }
-
   render() {
     return (
       <div>
@@ -83,6 +71,45 @@ function CourseItem(course)  {
       </Link>
     </li>
   )
+}
+
+class CoursePage extends Component {
+  constructor(props) {
+    super(props);
+    this.id = props.match.params.id;
+    this.state = ( course: {} );
+  }
+
+  componentWillMount() {
+    const url = "/api/courses/" + this.props.params.id;
+    const loadCourses = (data)=> {
+      this.setState({ course: data, loading: false });
+    }
+    fetch(url).then(r =>r.json()).then(loadCourses);
+  }
+
+  onSubmit() {
+    const url = "/api/courses/" + this.props.params.id;
+    fetch(url, { mode: "cors", method: "PUT"});
+  }
+
+  handleChange(e) {
+    e.preventDefault();
+    let course = this.state.course;
+    course[e.target.id] = e.target.value;
+    this.setState({ course: course });
+  }
+
+  render() {
+    const course = this.state.course;
+    return (
+      <section id="CoursePage">
+        <form id="CourseForm" onSubmit={this.onSubmit}>
+          {course.name}
+        </form>
+      </section>
+    )
+  }
 }
 
 export default CourseScreen;
