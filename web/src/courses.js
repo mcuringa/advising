@@ -55,7 +55,7 @@ class CourseListScreen extends React.Component {
   }
 
   onSubmit() {
-    const url = "/api/courses/" + this.props.params.id;
+    const url = "/api/courses/" + this.id;
     fetch(url, {mode: "cors", method: "PUT"});
   }
 
