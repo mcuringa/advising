@@ -104,7 +104,7 @@ class CoursePage extends React.Component {
     return (
       <section id="CoursePage">
         <h1>{course.course_title}</h1>
-        <h3>Sample text</h3>
+        <h3>{course.course_num}</h3>
 
       </section>
     )
