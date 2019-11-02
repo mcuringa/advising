@@ -105,10 +105,6 @@ class CoursePage extends React.Component {
       <section id="CoursePage">
         <h1>{course.course_title}</h1>
         <h3>Students who have completed this course</h3>
-
-//testing
-
-
       </section>
     )
   }
