@@ -52,6 +52,36 @@ function CourseItem(course)  {
   )
 }
 
+function filterEnrolledStudents(course) {
+  const coursesAPI = "/api/registration";
+  let studentsEnrolled = coursesAPI.filter((course_id) => {
+    return registration.course_id === "course_id"
+  })
+  return studentsEnrolled;
+}
+
+// function filterSpellsByCharClass(spells, classes) {
+//   let t = [];
+//   function isActive(spellCasters) {
+//     for(let i = 0; i < spellCasters.length; i++) {
+//       let charClass = spellCasters[i].toLowerCase();
+//       if(classes[charClass]) {
+//         return true;
+//       }
+//     }
+//     return false;
+//   }
+//
+//   for(let i = 0; i < spells.length; i++) {
+//     const spell = spells[i];
+//     const spellCasters = spell["class"].split(", ");
+//     if(isActive(spellCasters)) {
+//       t.push(spell);
+//     }
+//   }
+//   return t;
+// }
+
 class CoursePage extends React.Component {
   constructor(props) {
     super(props);
@@ -102,10 +132,40 @@ class CoursePage extends React.Component {
     const course = this.state.course;
     console.log("course", course);
     return (
+      <div>
       <section id="CoursePage">
-        <h1>{course.course_title}</h1>
-        <h3>Students who have completed this course</h3>
+        <h3>{course.course_title}</h3>
       </section>
+      <section id="CourseTable">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Students who have completed this course</th>
+            <th scope="col">Students who have not completed this course</th>
+            <th scope="col">Expected Year of Graduation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1</th>
+            <td>First name, last name</td>
+            <td>First name, last name</td>
+            <td>May 2021</td>
+          </tr>
+          <tr>
+            <th scope="row">2</th>
+            <td>First name, last name</td>
+            <td>First name, last name</td>
+            <td>December 2021</td>
+          </tr>
+        </tbody>
+        </table>
+      </section>
+      <section>
+        <p>this is more text</p>
+      </section>
+      </div>
     )
   }
 }
