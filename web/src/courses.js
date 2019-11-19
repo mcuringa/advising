@@ -52,35 +52,28 @@ function CourseItem(course)  {
   )
 }
 
-function filterEnrolledStudents(course) {
-  const coursesAPI = "/api/registration";
-  let studentsEnrolled = coursesAPI.filter((course_id) => {
-    return registration.course_id === "course_id"
-  })
-  return studentsEnrolled;
-}
-
-// function filterSpellsByCharClass(spells, classes) {
-//   let t = [];
-//   function isActive(spellCasters) {
-//     for(let i = 0; i < spellCasters.length; i++) {
-//       let charClass = spellCasters[i].toLowerCase();
-//       if(classes[charClass]) {
-//         return true;
-//       }
-//     }
-//     return false;
-//   }
-//
-//   for(let i = 0; i < spells.length; i++) {
-//     const spell = spells[i];
-//     const spellCasters = spell["class"].split(", ");
-//     if(isActive(spellCasters)) {
-//       t.push(spell);
-//     }
-//   }
-//   return t;
+// function filterEnrolledStudents(course) {
+//   const response = await fetch('/api/registration');
+//   const registration = await response.json();
+//     console.log(JSON.stringify(registration));
+//   let studentsEnrolled = coursesAPI.filter((course_id) => {
+//     return registration.course_id === "course_id"
+//   })
+//   return studentsEnrolled;
 // }
+
+// 1. Does fetch() have to be within  a component?
+// 2. Does /api/registration suffice as a URL? Do I need http://localhost:3000/?
+// 3. I took the fetch() info from:
+  // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  // 3a. I recall await from the spring and think it is needed here since
+  // the it will vary as each unique course page loads.
+  // 3b. I knkow you said that the URl was a string and thus a problem, which I 
+  // understand from a string/parameter standpoint, but other instances of
+  // the URL being called do utilize it as a string, which I do not understand.
+// 4. Robby helped me take my english explanation of the function's filter
+// and suggested a way to write it (line 59/60) but I don't understtand how that
+// works. Is that an abbreviated loop?
 
 class CoursePage extends React.Component {
   constructor(props) {
