@@ -3,8 +3,6 @@ import _ from "lodash";
 import { Link, Router } from "react-router-dom";
 import net from "./net.js";
 
-// testing
-// test 2
 
 class CourseScreen extends React.Component {
   constructor(props) {
@@ -31,7 +29,7 @@ class CourseScreen extends React.Component {
 
   render() {
     const li = _.map(this.state.courses, CourseItem);
-    // console.log("course list:", li);
+    console.log("course list:", li);
     return (
       <div>
         <h3>Courses</h3>
@@ -69,7 +67,7 @@ class CoursePage extends React.Component {
 
 
 
-    // et the coures info, then load registration
+    // get the coures info, then load registration
     const loadCourse = (response)=> {
       const course = response.data;
       // console.log("data", course);
@@ -153,9 +151,6 @@ class CoursePage extends React.Component {
       <section id="CompletedStudents">
         <h4>Students who have completed {course.course_num}</h4>
         <RegistrationTable students={this.state.completed} />
-      </section>
-      <section>
-        <p>this is more text</p>
       </section>
       </div>
     )
