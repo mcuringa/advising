@@ -18,7 +18,10 @@ class StudentsScreen extends React.Component {
   componentWillMount() {
     const url = "/api/students";
     const loadStudents = (data)=> {
-      this.setState({ students: data, loading: false });
+      const majors = ["EDN", "EDX", "EDT"];
+      const f = (s) => majors.includes(s.maj1);
+      let students = _.filter(data, f);
+      this.setState({ students: students, loading: false });
     }
     fetch(url).then(r =>r.json()).then(loadStudents);
   }
@@ -29,8 +32,8 @@ class StudentsScreen extends React.Component {
     console.log("student list:", li);
     return (
       <div>
-        <h3>Students</h3>
-        <ul>{li}</ul>
+        <h3>Students in EDT, EDX, EDN</h3>
+        <ol>{li}</ol>
       </div>
     )
   }
@@ -39,8 +42,8 @@ class StudentsScreen extends React.Component {
 function StudentItem(student)  {
   return (
     <li key={student.student_id}>
-      <Link className="nav-link" to={"/students/" + student.student_id}>
-      {student.first} {student.last}
+      <Link className="nav-link" to={"/students/" + student._id}>
+      {student.first} {student.last} [{student.maj1}]
       </Link>
     </li>
   )
@@ -57,60 +60,24 @@ class StudentPage extends React.Component {
   }
 
   componentWillMount() {
-    console.log("student page");
-
 
     const loadStudent = (response)=> {
       const student = response.data;
-      loadInfo(student);
+      this.setState( {
+        student: student,
+        loading: false
+      });
     }
-
-
-    const loadInfo = (student)=> {
-      const studUrl = "/api/students";
-
-      const saveInfo = (response)=> {
-        const completedFilter = (s) => s.student_id === student.student_id;
-        const allStudents = _.sortBy(response.data, "term");
-
-        let completed = _.filter(allStudents, completedFilter);
-        completed = _.reverse(completed);
-
-        let takenIds = _.map(completed, s=>s.student_id);
-        takenIds = new Set(takenIds);
-
-
-        // let's use a Set() to track who's not taken the course
-        // they might be in ther registration collection multiple times
-        // but we only need them once
-        let needIds = new Set();
-        const majors = ["EDN", "EDX", "EDT"];
-        let need = [];
-        for(let s of allStudents) {
-          if(majors.includes(s.maj1)
-            && !takenIds.has(s.student_id)
-            && !needIds.has(s.student_id)) {
-              need.push(s);
-              needIds.add(s.student_id);
-            }
-        }
-        need = _.reverse(need);
-        this.setState( {
-          students: student
-        });
-      }
-      net.get(studUrl).then(saveInfo);
-    }
-
     // load the data
     const studUrl = "/api/students/" + this.id;
+    console.log("getting student", studUrl);
     net.get(studUrl).then(loadStudent);
 
   }
 
   onSubmit() {
     const url = "/api/students/" + this.id;
-    fetch(url);
+    net.put(url, this.state.student);
   }
 
   handleChange(e) {
@@ -122,29 +89,78 @@ class StudentPage extends React.Component {
 
   render() {
     const student = this.state.student;
+    if(this.state.loading) {
+      return <Loading loading={true} msg="loading student" />
+    }
+
+    console.log("student", student);
+    console.log("student_id", student.student_id);
 
     return (
-      <div>
-      <section>
-        <p>this is more text</p>
-      </section>
+
       <section id="StudentPage">
         <h3>{student.first} {student.last}</h3>
+        <Transcript student_id={student.student_id} />
       </section>
+    )
+  }
+}
+
+function Loading (props) {
+  if(!props.loading) {
+    return false;
+  }
+  const msg = props.msg || "Loading...";
+  return (
+    <div className="spinner-border m-5" role="status">
+      <span className="sr-only">{msg}</span>
+    </div>
+  )
+}
+
+class Transcript extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      "courses": [],
+      "loading": true
+    };
+  }
+
+  componentWillMount() {
+
+    const f = (response)=> {
+      let courses = _.sortBy(response.data, "term");
+      this.setState( { courses: courses });
+    }
+    // load the data
+    const url = "/api/registration?student_id=" + this.props.student_id;
+    net.get(url).then(f);
+
+  }
+
+  render() {
+    const courses = _.map(this.state.courses, CourseItem);
+    return (
+      <div>
+        <h4>Transcript</h4>
+        <table>{courses}</table>
       </div>
     )
   }
 }
 
-function term(t) {
-  let semesters = {
-    "09": "Fall",
-    "02": "Spring",
-    "06": "Summer",
-    "01": "Winter"
-  }
-  let parts = t.split("/");
-  return semesters[parts[1]] + " '" + parts[0];
+function CourseItem(course)  {
+  return (
+    <tr key={course.course_num}>
+      <td>
+        <Link className="nav-link" to={"/courses/" + course._id}>
+          {course.course_num} {course.course_title}
+        </Link>
+      </td>
+      <td>{course.term}</td>
+    </tr>
+  )
 }
 
 export default StudentsScreen;
