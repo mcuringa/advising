@@ -50,9 +50,9 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
+# environment variables file
 .env
-
+firebase-adminsdk-key.json
 
 # dependencies
 /node_modules
