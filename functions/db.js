@@ -1,23 +1,26 @@
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
-const url = process.env.dbURL;
-const store = process.env.store;
+const config = require("./config.json");
+// const url = process.env.dbURL;
+// const store = process.env.store;
+const url = config.dbURL;
+const store = config.store;
 
 let client = null;
 async function connect(collection) {
 
-  // console.log("----------------------------------\n\n");
-  // console.log("url", url);
-  // console.log("\n\n----------------------------------");
+  console.log("----------------------------------\n\n");
+  console.log("url", url);
+  console.log("\n\n----------------------------------");
 
 
   const client = new MongoClient(url, { useNewUrlParser: true });
-  // console.log("got client...", client);
+  console.log("got client...", client);
 
   let p = (resolve, reject) => {
-    // console.log("connecting...");
+    console.log("connecting...");
     client.connect().then(() => {
-      // console.log("connected...");
+      console.log("connected...");
       let col = client.db(store).collection(collection);
       resolve(col);
     }).catch(resolve);
