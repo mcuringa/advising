@@ -15,15 +15,17 @@ class StudentsScreen extends React.Component {
 
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const url = "/api/students";
-    const loadStudents = (data)=> {
+    const loadStudents = (response)=> {
+      let data = response.data;
       const majors = ["EDN", "EDX", "EDT"];
       const f = (s) => majors.includes(s.maj1);
       let students = _.filter(data, f);
+      console.log("response:", response);
       this.setState({ students: students, loading: false });
     }
-    fetch(url).then(r =>r.json()).then(loadStudents);
+    net.get(url).then(loadStudents);
   }
 
 

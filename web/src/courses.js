@@ -22,7 +22,6 @@ class CourseScreen extends React.Component {
       // console.log("course json data:", response);
       this.setState({ courses: response.data, loading: false });
     }
-    // fetch(url).then(r =>r.json()).then(loadCourses);
     net.get(url).then(loadCourses);
   }
 
@@ -121,10 +120,6 @@ class CoursePage extends React.Component {
 
   }
 
-  onSubmit() {
-    const url = "/api/courses/" + this.id;
-    fetch(url);
-  }
 
   handleChange(e) {
     e.preventDefault();

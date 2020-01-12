@@ -47,12 +47,27 @@ async function find(collection, query) {
   return new Promise(p);
 }
 
+
 async function get(collection, id) {
-  // console.log("getting object:", id);
   id = ObjectId(id);
-  // console.log("objectid:", id);
-  const col = await connect(collection);
-  return col.findOne({ _id: id });
+  return findOne(collection, { _id: id });
+}
+
+async function findOne(collection, query) {
+  console.log("finding one for query:", query);
+  const p = (resolve, reject)=> {
+    // console.log("finding...", query);
+    const search = (col)=> {
+      // console.log("collection:", col);
+      let data = col.findOne(query);
+      // console.log("got data", data);
+      data.then(resolve);
+    }
+
+    connect(collection).then(search, reject);
+  }
+
+  return new Promise(p);
 }
 
 
@@ -75,6 +90,7 @@ module.exports = {
   get: get,
   connect: connect,
   findAll: findAll,
+  findOne: findOne,
   find: find,
   save: save
 };

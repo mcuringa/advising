@@ -2,27 +2,23 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
-const auth = require("./auth.js");
+
+// const cors = require('cors');
+// const auth = require("./auth.js");
 
 
 const db = require("./db.js");
+
 const app = express();
-const cors = require('cors');
-
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-// app.use(auth.authRequest);
+
+// app.use(cors());
 
 // basic REST functions
 // =========================
-// const cors = require('cors')({
-//   origin: true,
-// });
-
-// app.use(cors());
 
 const restList = async (req, res) => {
   console.log("rest listparams:", req.params);
@@ -74,18 +70,7 @@ const dataTest = (req, res) => {
   let data = [{msg: "Hello, world."}, {msg: "foo"}];
   res.json(data);
 }
-
 app.get('/api/test', dataTest);
-
-// const findOne = async (req, res) => {
-//   console.log("testing create of user");
-//   const f = (data)=> {res.json([{"after create": data}])};
-//   const fbu = {uid:"foo", name:"test user", email:"foo@adelphi.edu"};
-//   auth.createUser(fbu).then(f);
-// }
-//
-//
-// app.get('/api/one', findOne);
 
 // =========================================== routes
 
@@ -93,18 +78,12 @@ app.get('/api/test', dataTest);
 // app.post("/api/users", auth.createUser);
 // app.post("/api/login", auth.authenticate);
 
-// app.options('/api/:collection', cors());
-// app.options('/api/:collection/:id', cors());
-// app.options('/api/:collection', cors());
-// app.options('/api/:collection/:id', cors());
-
-
 // rest routes
-// app.get('/api/:collection', restList);
-// app.get('/api/:collection/:id', restGet);
-// app.post('/api/:collection', restPost);
-// app.put('/api/:collection/:id', restPut);
-
+app.get('/api/:collection', restList);
+app.get('/api/:collection/:id', restGet);
+app.post('/api/:collection', restPost);
+app.put('/api/:collection/:id', restPut);
 // app.delete('/api/:collection/:id', restDel);
 
-module.exports = app;
+
+exports.app = app;

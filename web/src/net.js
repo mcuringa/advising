@@ -6,22 +6,24 @@
  * @author mxc
  */
 
+const serverRoot = "http://localhost:5000";
+
 /**
  * send a fetch request with all of the defaults
  * configured for our app
  */
 const doFetch = async (method, url, data) => {
 
+  url = serverRoot + url;
+  console.log("fetch url:", url);
 
   let headers = {
     "Content-Type": "application/json"
   };
 
-
-  let token = localStorage.getItem("token");
-  const now = new Date().getTime();
-  if(token && token.exp * 1000 > now) {
-    headers["Authorization"] = `Bearer ${token.payload}`;
+  let token = localStorage.getItem("jwt");
+  if(token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   let params = {
@@ -31,6 +33,7 @@ const doFetch = async (method, url, data) => {
     headers: headers,
     referrer: "no-referrer"
   }
+  console.log("net params:", params);
 
   if (data && method !== "GET") {
     params.body = data;
@@ -56,7 +59,7 @@ const doFetch = async (method, url, data) => {
 
 
 
-const get = async (url) => doFetch("GET", url);
+const get = async (url) => doFetch("GET", url, null);
 const post = async (url, data) => doFetch("POST", url, data);
 const put = async (url, data) => doFetch("PUT", url, data);
 const remove = async (url, data) => doFetch("DELETE", url, data);
