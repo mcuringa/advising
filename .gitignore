@@ -5,6 +5,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# project data
+/_data
+
 # Runtime data
 pids
 *.pid
@@ -58,6 +61,7 @@ firebase-adminsdk-key.json
 /node_modules
 /.pnp
 .pnp.js
+.firebase
 
 # testing
 /coverage
