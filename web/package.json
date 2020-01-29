@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "bootstrap": "^4.4.1",
+    "feather-icons": "^4.25.0",
     "firebase": "^7.6.1",
     "firebaseui": "^4.4.0",
     "gapi": "0.0.3",

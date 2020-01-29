@@ -13,7 +13,7 @@ class Authenticate extends React.Component {
 
   componentDidMount() {
     const uiConfig = {
-      signInSuccessUrl: "/welcome",
+      signInSuccessUrl: "/",
       signInOptions: [
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
       ],

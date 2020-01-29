@@ -21,14 +21,17 @@ const doFetch = async (method, url, data) => {
     "Content-Type": "application/json"
   };
 
-  let token = localStorage.getItem("jwt");
+  let token = await localStorage.getItem("jwt");
   if(token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    // console.log("loaded auth token");
+    // headers["Access-Control-Allow-Headers"] = "Authorization";
+    headers["Authorization"] = `Bearer ${token}`; //:
   }
 
   let params = {
     method: method,
     mode: "cors",
+    // credentials: "include",
     cache: "no-cache",
     headers: headers,
     referrer: "no-referrer"

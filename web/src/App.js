@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import PageScreen from "./pages";
 import Authenticate from "./users/Auth.js";
 import CourseScreen, { CoursePage } from "./courses";
-import StudentsScreen, { StudentPage } from "./students";
+import StudentsScreen from "./StudentList";
+import StudentDetail from "./StudentDetail";
 
 import fb from "./firebase-tools.js";
 
@@ -13,8 +14,7 @@ function App() {
   return (
     <Router>
       <div className="App container">
-        <h1>Foo Bar</h1>
-        <SecureRoutes />
+StudentDetail        <SecureRoutes />
         <Route exact path="/privacy"
           render={(props) => <PageScreen {...props} page="privacy" />}/>
       </div>
@@ -48,13 +48,13 @@ class SecureRoutes  extends React.Component {
     return (
       <div className="SecureRoutes">
         <Header  />
-        <PropsRoute foo="bar" exact path="/" component={Home} />
+        <PropsRoute exact path="/" component={Home} />
         <PropsRoute path="/sign-in" component={SignIn} />
         <PropsRoute path="/login" component={Authenticate} />
         <PropsRoute exact path="/courses" component={CourseScreen} />
         <PropsRoute path="/courses/:id" component={CoursePage} />
         <PropsRoute exact path="/students" component={StudentsScreen} />
-        <PropsRoute path="/students/:id" component={StudentPage} />
+        <PropsRoute path="/students/:id" component={StudentDetail} />
       </div>
     )
   }
@@ -101,7 +101,6 @@ class Home  extends React.Component {
     const user = this.state.user || {};
     return (
       <ul>
-        <li>foo: {this.props.foo}</li>
         <li>displayName: {user.displayName}</li>
         <li>email: {user.email}</li>
       </ul>

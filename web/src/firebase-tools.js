@@ -4,12 +4,17 @@ import "firebase/auth";
 
 let _firebase = null;
 let _user = null;
+
 const updateUser = (u)=> {
   if(_user && !u) { //signing out
     localStorage.removeItem("jwt");
   }
   else if(u) {
-    const saveToken = (token)=> {localStorage.setItem("jwt", token)};
+
+    const saveToken = (token)=> {
+      // console.log("saving jwt...", token);
+      localStorage.setItem("jwt", token)
+    };
     u.getIdToken(true).then(saveToken);
   }
   _user = u;
