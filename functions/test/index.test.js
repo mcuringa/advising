@@ -52,11 +52,39 @@ describe('db', ()=> {
     });
   });
 
+  describe("get", ()=> {
+    it("should get a record based on _id", async ()=> {
+      const name = "Xiaheinuer";
+      let id = new ObjectId("5e2cb737cb989118ba1cc0e6");
+      const user = await db.get("students", id);
+      user.last.should.equal(name);
+    });
+  });
+
 
   describe('update', ()=> {
     it('should update existing test record', async ()=> {
-      let data = { _id: ObjectId("5e251b0585997e5035cacc32"), foo:"baz" };
-      const result = await db.save("tests", data);
+      const name = "Shahee (Ahati)";
+      let id = new ObjectId("5e2cb737cb989118ba1cc0e6");
+      let student = {
+        _id: "5e2cb737cb989118ba1cc0e6",
+        student_id: '1775424',
+        first: 'Shahee',
+        last: 'Xiaheinuer',
+        graduated: false,
+        maj1: 'EDX',
+        aui: false,
+        email: 'ahatixiaheinuer@mail.adelphi.edu',
+        last_registered: '19/02',
+        online: false,
+        active: true,
+        modified: '2020-01-31T03:09:17.173Z'
+      };
+      student.first = name;
+      const result = await db.save("students", student);
+      const user = await db.get("students", id);
+      console.log("students", user)
+      user.first.should.equal(name);
       result.should.exist;
     });
   });

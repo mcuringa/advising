@@ -5,8 +5,8 @@
  *
  * @author mxc
  */
-
-const serverRoot = "http://localhost:5000";
+import config from "./config.json";
+const serverRoot = config.serverRoot;
 
 /**
  * send a fetch request with all of the defaults
@@ -15,7 +15,7 @@ const serverRoot = "http://localhost:5000";
 const doFetch = async (method, url, data) => {
 
   url = serverRoot + url;
-  console.log("fetch url:", url);
+  // console.log("fetch url:", url);
 
   let headers = {
     "Content-Type": "application/json"
@@ -36,10 +36,10 @@ const doFetch = async (method, url, data) => {
     headers: headers,
     referrer: "no-referrer"
   }
-  console.log("net params:", params);
+  // console.log("net params:", params);
 
   if (data && method !== "GET") {
-    params.body = data;
+    params.body = makeFormBody(data);
   }
 
   const promiseToReadResponse = (resolve, reject)=> {
@@ -60,6 +60,9 @@ const doFetch = async (method, url, data) => {
   return new Promise(promiseToReadResponse);
 }
 
+const makeFormBody = (data)=> {
+  return JSON.stringify(data);
+}
 
 
 const get = async (url) => doFetch("GET", url, null);

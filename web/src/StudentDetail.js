@@ -1,7 +1,8 @@
 import React from "react";
-import _ from "lodash";
-import { Link } from "react-router-dom";
 import net from "./net.js";
+import { StatusIndicator, TextInput, Checkbox, LoadingSpinner } from "./ui/form-ui";
+import Toggle from "./ui/Toggle";
+import Plan from "./Plan";
 
 class StudentDetail extends React.Component {
   constructor(props) {
@@ -10,10 +11,10 @@ class StudentDetail extends React.Component {
     this.state = {
       "student": {},
       "loading": true
-    };
+      };
   }
 
-  componentWillMount() {
+  componentDidMount() {
 
     const loadStudent = (response)=> {
       const student = response.data;
@@ -29,92 +30,174 @@ class StudentDetail extends React.Component {
 
   }
 
-  onSubmit() {
-    const url = "/api/students/" + this.id;
-    net.put(url, this.state.student);
-  }
-
-  handleChange(e) {
-    e.preventDefault();
-    let student = this.state.students;
-    student[e.target.id] = e.target.value;
-    this.setState({ student: student });
-  }
-
   render() {
-    const student = this.state.student;
-    if(this.state.loading) {
-      return <Loading loading={true} msg="loading student" />
-    }
 
+    if (this.state.loading) {
+      return <LoadingSpinner loading />
+    }
+    const student = this.state.student;
+    const title = (<h3>{this.state.student.first} {this.state.student.last}</h3>);
     console.log("student", student);
     console.log("student_id", student.student_id);
 
+
     return (
 
-      <section id="StudentPage">
-        <h3>{student.first} {student.last}</h3>
-        <Transcript student_id={student.student_id} />
+      <section className="StudentDetail mt-3">
+        <div className="mb-2">
+          <Toggle css="card toggle-card-header" open={false}
+              title={title}>
+
+            <div className="card-body">
+              <StudentForm student={student} />
+            </div>
+          </Toggle>
+        </div>
+
+        <Plan student_id={student.student_id} />
       </section>
     )
   }
 }
 
-function Loading (props) {
-  if(!props.loading) {
-    return false;
-  }
-  const msg = props.msg || "Loading...";
-  return (
-    <div className="spinner-border m-5" role="status">
-      <span className="sr-only">{msg}</span>
-    </div>
-  )
-}
 
-class Transcript extends React.Component {
+class StudentForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      "courses": [],
-      "loading": true
+      student: props.student,
+      loading: false,
+      dirty: false,
+      error: null
+
     };
+    this.handleChange = this.handleChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
-  componentWillMount() {
-
-    const f = (response)=> {
-      let courses = _.sortBy(response.data, "term");
-      this.setState( { courses: courses });
+  onSubmit(e) {
+    e.preventDefault();
+    let student = this.state.student;
+    if(student.graduated) {
+      student.active = false;
     }
-    // load the data
-    const url = "/api/registration?student_id=" + this.props.student_id;
-    net.get(url).then(f);
-
+    const url = "/api/students/" + student._id;
+    const saved = ()=> {
+      this.setState({dirty: false, loading: false});
+    }
+    this.setState({ loading: true });
+    net.put(url, student).then(saved).catch((e)=>{
+      console.log("failed to save student:", e);
+      this.setState({loading: false, error: "Failed to save changes. " + e.stack});
+    });
   }
 
-  render() {
-    const courses = _.map(this.state.courses, CourseItem);
+  handleChange(e) {
+    console.log("handing change");
+    e.preventDefault();
+    let student = this.state.student;
+    student[e.target.id] = e.target.value;
+    this.setState({ student: student, dirty: true });
+  }
+
+  render () {
+    let student = this.state.student;
+    const CLASS = "https://class.adelphi.edu/cgi-bin/web.asp?web=ADVISEE.INQ&STUDID=" + student.student_id;
+    const slate = "https://connect.adelphi.edu/manage/lookup/search?q=" + student.first + "+" + student.last;
+    const degree = "https://studentweb.adelphi.edu/selfservice-batch/audit/create.html?searchType=stuno&stuno=" + student.student_id;
+
+    const toggle = (key)=> {
+      return ()=> {
+        student[key] = !student[key];
+        this.setState({student: student, dirty: true});
+      }
+    }
+
     return (
-      <div>
-        <h4>Transcript</h4>
-        <table>{courses}</table>
-      </div>
+      <form onSubmit={this.onSubmit}>
+        <div className="d-flex justify-content-end">
+          <StatusIndicator loading={this.state.loading}
+            dirty={this.state.dirty}
+            className="pr-3" />
+        </div>
+
+        <div className="row mb-2">
+          <div className="col-md-3 text-right font-weight-bold">
+            name
+          </div>
+          <div className="col-md-3">
+            <TextInput
+              id="first"
+              required
+              validationErrorMsg="first name is required"
+              validationPassedMsg="looks good"
+              placeholder="first name"
+              value={student.first}
+              onChange={this.handleChange} />
+          </div>
+          <div className="col-md-3">
+            <TextInput
+            id="last"
+            required
+            validationErrorMsg="last name is required"
+            validationPassedMsg="looks good"
+            placeholder="last name"
+            value={student.last}
+            onChange={this.handleChange} />
+          </div>
+        </div>
+
+        <div className="row mb-2">
+          <div className="col-md-3 text-right font-weight-bold">
+            student id
+          </div>
+          <div className="col-md-6">
+            {student.student_id}
+            <a className="pl-2" href={CLASS} title="open in CLASS">[CLASS]</a>
+            <a className="pl-2" href={slate} title="open in Slate">[Slate]</a>
+            <a className="pl-2" href={degree} title="open in degree audit">[Degree Audit]</a>
+          </div>
+        </div>
+        <div className="row mb-2">
+          <div className="col-md-3 text-right font-weight-bold">
+            email
+          </div>
+          <div className="col-md-6">
+            <a href={`mailto:${student.email}`} title="send an email"><span role="img" aria-label="email">📧</span> {student.email}</a>
+          </div>
+        </div>
+        <div className="row mt-2">
+          <div className="col-md-3"></div>
+          <div className="col-md-6">
+            <div className="row">
+              <div className="col-md-6">
+                <Checkbox label="AUI" checked={student.aui} onClick={toggle("aui")} />
+              </div>
+              <div className="col-md-6">
+                <Checkbox label="Online / AllCampus" checked={student.online} onClick={toggle("online")} />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6">
+                <Checkbox label="Graduated" checked={student.graduated} onClick={toggle("graduated")} />
+              </div>
+              <div className="col-md-6">
+                <Checkbox label="Inactive" checked={!student.active} onClick={toggle("active")} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="row mt-2">
+          <div className="col-md-3"></div>
+          <div className="col-md-6">
+            <button className="btn btn-primary" type="submit">save</button>
+          </div>
+        </div>
+      </form>
     )
   }
 }
 
-function CourseItem(course)  {
-  return (
-    <tr key={course.course_num}>
-      <td>
-        <Link className="nav-link" to={"/courses/" + course._id}>
-          {course.course_num} {course.course_title}
-        </Link>
-      </td>
-      <td>{course.term}</td>
-    </tr>
-  )
-}
 
 export default StudentDetail;

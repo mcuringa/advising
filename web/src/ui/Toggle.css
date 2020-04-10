@@ -1,0 +1,25 @@
+.Toggle .d-block {
+  transition: height, 1s, ease;
+}
+
+/* .toggle-card-header { color: green !important } */
+
+.toggle-card-header .ToggleTitle {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  border-top-left-radius:  .25em;
+  border-top-right-radius: .25em;
+}
+
+.toggle-card-header .ToggleTitle h3 {
+  font-size: 1.25rem;
+  padding: 0;
+  margin: 0;
+}
+
+.toggle-card-header .card-body {
+  border-radius: 0;
+  border-style-top: none;
+}

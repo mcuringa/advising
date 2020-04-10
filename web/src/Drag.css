@@ -1,0 +1,10 @@
+.drag-handle {
+  cursor: grab;
+}
+
+.sortable-ghost {
+  opacity: .6;
+}
+.drag-item.list-group-item {
+  padding: 0.25rem .5rem;
+}

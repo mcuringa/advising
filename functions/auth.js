@@ -6,11 +6,11 @@ admin.initializeApp();
 const adminEmails = ["mcuringa@adelphi.edu", "hung@adelphi.edu"];
 
 const authRequest = async (req, res, next) => {
-  console.log('Check if request is authorized with Firebase ID token');
-
-  console.log("--------------- headers ------------------")
-  console.log(req.headers);
-  console.log();
+  // console.log('Check if request is authorized with Firebase ID token');
+  //
+  // console.log("--------------- headers ------------------")
+  // console.log(req.headers);
+  // console.log();
 
   if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) &&
       !(req.cookies && req.cookies.__session)) {
@@ -24,12 +24,12 @@ const authRequest = async (req, res, next) => {
 
   let idToken;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
-    console.log('Found "Authorization" header');
+    // console.log('Found "Authorization" header');
     // Read the ID Token from the Authorization header.
     idToken = req.headers.authorization.split('Bearer ')[1];
   }
   else if(req.cookies) {
-    console.log('Found "__session" cookie');
+    // console.log('Found "__session" cookie');
     // Read the ID Token from cookie.
     idToken = req.cookies.__session;
   }
@@ -41,10 +41,10 @@ const authRequest = async (req, res, next) => {
 
   try {
     const decodedIdToken = await admin.auth().verifyIdToken(idToken);
-    console.log('ID Token correctly decoded', decodedIdToken);
+    // console.log('ID Token correctly decoded', decodedIdToken);
     req.user = decodedIdToken;
-    console.log("saved user to express (email):", req.user.email);
-    console.log("claims:", req.user.claims);
+    // console.log("saved user to express (email):", req.user.email);
+    // console.log("claims:", req.user.claims);
     if(!adminEmails.includes(req.user.email)) {
       res.status(403).send('Unauthorized: admin rights required');
       return;

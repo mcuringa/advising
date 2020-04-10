@@ -1,5 +1,4 @@
 import React from "react";
-import _ from "lodash";
 import * as firebaseui from "firebaseui";
 import "firebase/auth";
 import fb from "../firebase-tools.js";
@@ -7,9 +6,6 @@ const firebase = fb.getFirebase();
 
 
 class Authenticate extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
   componentDidMount() {
     const uiConfig = {

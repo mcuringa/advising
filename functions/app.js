@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
@@ -24,25 +23,28 @@ app.use(auth.authRequest);
 // basic REST functions
 // =========================
 
-const restList = async (req, res) => {
-  console.log("rest listparams:", req.params);
-  console.log("rest query string:", req.query);
+const restList = async (req, res, next) => {
+  // console.log("rest listparams:", req.params);
+  // console.log("rest query string:", req.query);
   let data = await db.find(req.params.collection, req.query);
   // let data = await db.findAll(req.params.collection);
   res.json(data);
+  next();
 }
 
-const restGet = async (req, res) => {
-  console.log("rest get params:", req.params);
+const restGet = async (req, res, next) => {
+  // console.log("rest get params:", req.params);
   let data = await db.get(req.params.collection, req.params.id);
   res.json(data);
+  next();
 }
 
-const postObject = async (req, res, next, resolve) => {
+const saveObject = async (req, res, next, resolve) => {
 
   const data = req.body;
   const col = req.params.collection;
-  console.log("data:", data);
+  // console.log("collection:", col);
+  // console.log("saving:", data);
   db.save(col, data).then(resolve, next);
 
 }
@@ -54,7 +56,7 @@ const restPost = async (req, res, next) => {
       "data": obj
     });
   }
-  postObject(req, res, next, go);
+  saveObject(req, res, next, go);
 }
 
 const restPut = async (req, res, next) => {
@@ -64,7 +66,7 @@ const restPut = async (req, res, next) => {
       "data": obj
     });
   }
-  postObject(req, res, next, go);
+  saveObject(req, res, next, go);
 }
 
 
@@ -73,6 +75,7 @@ const dataTest = (req, res) => {
   console.log("rest get params:", req.params);
   let data = [{msg: "Hello, world."}, {msg: "foo"}];
   res.json(data);
+  next();
 }
 
 app.get('/api/test', dataTest);
@@ -80,7 +83,7 @@ app.get('/api/test', dataTest);
 // =========================================== routes
 
 
-const secureAPI = (req,res,next)=> {
+const secureAPI = (req, res, next)=> {
   // res.header("Access-Control-Allow-Origin", "*");
   app.options('/api/:collection', cors());
   app.options('/api/:collection/:id', cors());
@@ -98,5 +101,13 @@ app.post('/api/:collection', restPost);
 app.put('/api/:collection/:id', restPut);
 
 // app.delete('/api/:collection/:id', restDel);
+
+const clean = (req, res, next)=> {
+  // console.log( "closing connections" );
+  db.close();
+  next();
+}
+
+app.use(clean);
 
 module.exports = app;

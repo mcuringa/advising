@@ -1,6 +1,6 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
-
+import firebaseConfig from "./config.json";
 
 let _firebase = null;
 let _user = null;
@@ -25,15 +25,7 @@ const getFirebase = ()=> {
     return _firebase;
   }
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCdUPov4Jm28ruthqILDHsOKnBv3SMRh_I",
-    authDomain: "ed-tech-portal.firebaseapp.com",
-    databaseURL: "https://ed-tech-portal.firebaseio.com",
-    projectId: "ed-tech-portal",
-    storageBucket: "ed-tech-portal.appspot.com",
-    messagingSenderId: "1022403549610",
-    appId: "1:1022403549610:web:57a0111e459fab057bf3d3"
-  };
+
   firebase.initializeApp(firebaseConfig);
   _firebase = firebase;
   return _firebase;

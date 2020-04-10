@@ -8,16 +8,18 @@ const url = config.dbURL;
 const store = config.store;
 let client = null;
 
-
 async function connect(collection) {
   //
   // console.log("----------------------------------\n\n");
   // console.log("url", url);
   // console.log("\n\n----------------------------------");
 
-
-  const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
-  // console.log("got client...", client);
+  // if (!client) {
+    client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
+  // }
+  // else {
+  //   console.log("using cached client");
+  // }
 
   let p = (resolve, reject) => {
     // console.log("connecting...");
@@ -41,7 +43,7 @@ function cleanTypes(d) {
       if(!Number.isNaN(n)) {
         v = n;
       }
-      else if(moment("2015-06-22T13:17:21+0000", moment.ISO_8601, true).isValid()) {
+      else if(moment(v, moment.ISO_8601, true).isValid()) {
         v = new Date(v);
       }
       o2[k] = v
@@ -102,8 +104,8 @@ async function save(collection, obj) {
   const col = await connect(collection);
   obj.modified = new Date();
   if (obj._id) {
-    const id = new ObjectId(obj._id);
-    return col.replaceOne({_id: id}, obj);
+    obj._id = new ObjectId(obj._id);
+    return col.replaceOne({_id: obj._id}, obj);
   }
   else {
     obj.created = new Date();
@@ -147,9 +149,11 @@ function close() {
   if(client) {
     try {
       client.close();
+      console.log("client closed");
     }
     catch(e) {
       // we tried
+      console.log("couldn't close client", e);
     }
   }
 }

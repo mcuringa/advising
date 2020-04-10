@@ -2,7 +2,8 @@ import React from "react";
 import _ from "lodash";
 import { Link } from "react-router-dom";
 import net from "./net.js";
-import SortableTable from "./SortableTable";
+import SortableTable from "./ui/SortableTable";
+import { StatusIndicator } from "./ui/form-ui";
 
 class StudentsScreen extends React.Component {
   constructor(props) {
@@ -11,21 +12,31 @@ class StudentsScreen extends React.Component {
     this.state = {
       students: [],
       loading: true,
-      filters: {
-        showGrad: false,
-        showCurrent: true,
-        showAUI: true,
-        showOnline: true,
-        showInActive: false
-      }
+      dirty: false,
+      allStudents: false
     };
+    this.save = this.save.bind(this);
 
   }
 
+  save(s) {
+    const saved = (r)=> {
+      console.log("saved student with result:", r);
+      this.setState({dirty: false, loading: false});
+    }
+    const url = "/api/students/" + s._id;
+    net.put(url, s).then(saved).catch((e)=>{
+      console.log("failed to save student:", e);
+      this.setState({loading: false, error: "Failed to save changes to student. " + e.stack});
+    });
+  }
+
   componentDidMount() {
+    console.log("mounting student list");
     const url = "/api/students";
     const loadStudents = (response)=> {
       let data = response.data;
+      console.log(data);
       this.setState({ students: data, loading: false });
     }
     net.get(url).then(loadStudents);
@@ -33,126 +44,69 @@ class StudentsScreen extends React.Component {
 
   render() {
     const headers = [
-      ["id", "id_link"],
-      ["first name", "first"],
-      ["last name", "last"],
-      ["email", "email"],
-      ["major", "maj1"],
-      ["last term", "last_registered"],
+      ["id", "student_id"],
+      ["first", "first"],
+      ["last", "last"],
+      // ["email", "email"],
       ["grad", "graduated"],
       ["aui", "aui"],
-      ["online", "online"]
+      ["online", "online"],
+      ["active", "active"]
     ];
 
-    const prep = (s)=> {
-      s.id_link = (<Link to={`/students/${s._id}`}>{s.student_id}</Link>)
-      return s;
+    const mapValues = (key, s)=> {
+      let values = {};
+      values["student_id"] = (<Link to={`/students/${s._id}`}>{s.student_id}</Link>)
+      values["active"] = (<TSB student={s} field="active" icon={(s.active)?"🙂" : "😴"} />);
+      values["graduated"] = (<TSB student={s} field="graduated" icon={(s.graduated)?"🎓" : "–"} />);
+      values["aui"] = (<TSB student={s} field="aui" icon={(s.aui)?"🇺🇳" : "–"} />);
+      values["online"] = (<TSB student={s} field="online" icon={(s.online)?"📡" : "–"} />);
+
+      return values[key] || s[key];
+
     }
 
-    let filters = this.state.filters;
+    const TSB = (props)=> { // ToggleAndSaveButton
+      let s = props.student, field = props.field, icon = props.icon;
+      const f = ()=> {
+        this.setState({dirty: true, loading: true});
+        console.log("clicked on student:", s);
+        console.log("field:", field);
 
-    let filter = (s)=> {
-      if(!filters.showAUI && s.aui) {
-        return false;
-      }
-      if(filters.showInactive && !s.active) {
-        return false;
-      }
-      if(filters.showCurrent && !s.graduated) {
-        return true;
-      }
-      if(filters.showGrad && s.graduated) {
-        return true;
-      }
-      return false;
+        s[field] = !s[field];
+        this.save(s);
+      };
+      return (<button className="p-0 m-0 btn btn-link" onClick={f}>{icon}</button>);
     }
 
-    const toggleFilter = (f)=> {
-      return ()=> {
-        let filters = this.state.filters;
-        filters[f] = !filters[f];
-        this.setState({filters: filters});
-      }
+    let students = _.sortBy(this.state.students, "first");
+    if (!this.state.allStudents) {
+      students = _.filter(students, s=>!s.graduated && s.active);
     }
-
-    let students = _.map(this.state.students, prep);
-    students = _.filter(students, filter);
-
+    const toggleAll = ()=>{this.setState({allStudents: !this.state.allStudents})};
     return (
-      <section className="StudentList">
-      <div className="card">
-        <div className="card-header">
-          Ed Tech Students
+      <section className="StudentList mt-2">
+        <div className="d-flex justify-content-between">
+          <h3>Ed Tech Students</h3>
+          <StatusIndicator loading={this.state.loading} dirty={this.state.dirty}
+            className="pr-3" />
         </div>
-        <div className="card-body">
-          <form>
-            <div className="row">
-              <div className="col-md-4">
-                <FilterCheck
-                  name="graduated"
-                  key="showGrad"
-                  toggle={toggleFilter("showGrad")}
-                  checked={filters.showGrad} />
-
-                <FilterCheck
-                  name="current"
-                  key="showCurrent"
-                  toggle={toggleFilter("showCurrent")}
-                  checked={filters.showCurrent} />
-                  <FilterCheck
-                    name="inactive students"
-                    key="showInActive"
-                    toggle={toggleFilter("showInActive")}
-                    checked={filters.showInActive} />
-              </div>
-
-              <div className="col-md-4">
-                <FilterCheck
-                  name="AUI"
-                  key="showAUI"
-                  toggle={toggleFilter("showAUI")}
-                  checked={filters.showAUI} />
-
-                <FilterCheck
-                  name="online"
-                  key="showOnline"
-                  toggle={toggleFilter("showOnline")}
-                  checked={filters.showOnline} />
-              </div>
-
-
-            </div>
-          </form>
-
-        </div>
-      </div>
-        <SortableTable headers={headers} data={students} sortBy="first" />
+        <form className="d-flex">
+          <div className="pr-2">
+            <input type="radio"
+              name="allStudents"
+              checked={this.state.allStudents} onChange={toggleAll} /> all students
+          </div>
+          <div>
+            <input type="radio"
+              name="allStudents"
+              checked={!this.state.allStudents} onChange={toggleAll} /> active students
+          </div>
+        </form>
+        <SortableTable counter headers={headers} data={students} mapper={mapValues} sortBy="first" />
       </section>
     )
   }
-}
-
-function FilterCheck(props) {
-  return (
-    <div className="form-check">
-      <input className="form-check-input"
-           onClick={props.toggle}
-           id={props.key}
-           type="checkbox"
-           checked={props.checked} />
-      <label className="form-check-label" for="current">{props.name}</label>
-    </div>
-  )
-}
-
-function StudentItem(student)  {
-  return (
-    <li key={student.student_id}>
-      <Link className="nav-link" to={"/students/" + student._id}>
-      {student.first} {student.last} [{student.maj1}]
-      </Link>
-    </li>
-  )
 }
 
 export default StudentsScreen;
