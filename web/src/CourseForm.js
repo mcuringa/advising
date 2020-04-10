@@ -34,7 +34,8 @@ class CourseForm extends React.Component {
   componentDidMount() {
 
     const loadCourse = (response)=> {
-      const course = response.data;
+      let course = response.data;
+      course.url = course.url || "";
       this.setState( {
         course: course,
         loading: false

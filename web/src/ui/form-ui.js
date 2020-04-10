@@ -179,7 +179,7 @@ const RadioButtonGroup = (props)=>
         key={`${props.id}.${k}`}
         id={`${props.id}.${k}`}
         name={props.id}
-        checked
+        checked={checked}
         value={v}
         label={k}
         disabled={props.readOnly}
@@ -191,16 +191,11 @@ const RadioButtonGroup = (props)=>
   const labelCols = props.labelCols || "col-md-3";
   const valCols = props.valCols || "col-md-6";
 
-  const GroupLabel = ()=> {
-    if (props.label) {
-      return null;
-    }
-    return (
+  const GroupLabel = (!props.label)?null: (
       <div className={`text-right ${labelCols}`}>
         <Label id={props.id} label={props.label} />
       </div>
-    )
-  }
+    );
 
   return(
     <div className="form-group row">
