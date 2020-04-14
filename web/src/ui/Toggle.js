@@ -1,6 +1,8 @@
 import React from "react";
 import "./Toggle.css";
 import _ from "lodash";
+import {CaretFillDown, CaretFillRight} from "./icons";
+
 
 class Toggle extends React.Component {
   constructor(props) {
@@ -32,8 +34,8 @@ class Toggle extends React.Component {
 
 
 function ToggleIcon (props) {
-  let open = props.openIcon || "⮟";
-  let closed = props.closedIcon || "⮞" ;
+  let open = props.openIcon || <CaretFillDown className="icon-primary" />;
+  let closed = props.closedIcon || <CaretFillRight className="icon-primary" /> ;
   let icon = (props.open)?open : closed;
 
   return <button className="btn btn-link d-block text-decoration-none p-0 pr-2" onClick={props.toggle}>{icon}</button>

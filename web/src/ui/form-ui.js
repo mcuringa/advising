@@ -209,15 +209,14 @@ const RadioButtonGroup = (props)=>
 }
 
 const Select = (props) => {
-  console.log("select options:", props.options);
   const Options = _.map(props.options, (v,k)=> {
-    console.log("opt:", k , v);
-    // return <option>{k}</option>
     return (<option key={k} value={k}>{v}</option>)
   } )
 
+  const css = "custom-select " + (props.className || "");
+
   return (
-    <select id={props.id} value={props.value} className="custom-select">
+    <select id={props.id} value={props.value} className={css} onChange={props.onChange}>
       {Options}
     </select>
   )

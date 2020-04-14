@@ -5,8 +5,49 @@
  *
  * @author mxc
  */
+
+import localforage from "localforage";
+import _ from "lodash";
 import config from "./config.json";
 const serverRoot = config.serverRoot;
+
+const cacheUrls = [
+  "/api/plans",
+  "/api/courses",
+  "/api/schedules",
+  "/api/students"
+]
+
+const lf = localforage.createInstance({
+  name: "net-cache"
+});
+
+
+const cache = async (method, url, data) => {
+
+  if(method === "GET" && _.includes(cacheUrls, url)) {
+    const item = {data: data, ts: new Date().getMilliseconds()}
+    console.log("caching data", url, item);
+    lf.setItem("url", item);
+  }
+
+}
+
+const getFromCache = async (method, url) => {
+  console.log("checking cache", url);
+  if(method !== "GET") {
+    return null;
+  }
+
+  let data = await lf.getItem(url);
+  if (!data) {
+    return null;
+  }
+  console.log("found cache data", data);
+  return data;
+}
+
+
 
 /**
  * send a fetch request with all of the defaults
@@ -51,10 +92,22 @@ const doFetch = async (method, url, data) => {
         }
         resolve(msg);
       }
+
+      cache(method, url, r);
       r.json().then(handleJson);
     }
 
-    fetch(url, params).then(handleResponse, reject);
+    const handleCache = (cache)=> {
+      if (cache) {
+        handleResponse(cache);
+      }
+      else {
+        fetch(url, params).then(handleResponse, reject);
+      }
+    }
+
+    getFromCache(method, url).then(handleCache);
+
   }
 
   return new Promise(promiseToReadResponse);

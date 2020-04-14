@@ -11,10 +11,10 @@ let client = null;
 
 async function connect(collection) {
   //
-  console.log("----------------------------------\n\n");
-  console.log("url", url);
-  console.log("store", store);
-  console.log("\n\n----------------------------------");
+  // console.log("----------------------------------\n\n");
+  // console.log("url", url);
+  // console.log("store", store);
+  // console.log("\n\n----------------------------------");
 
   // if (!client) {
     client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -30,9 +30,7 @@ async function connect(collection) {
       reject(e);
     }
 
-    console.log("connecting...");
     client.connect().then(() => {
-      console.log("connected...");
       let col = client.db(store).collection(collection);
       resolve(col);
     }).catch(err);
