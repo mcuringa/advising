@@ -7,7 +7,7 @@
     "feather-icons": "^4.28.0",
     "firebase": "^7.13.2",
     "firebaseui": "^4.5.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "lodash": "^4.17.15",
     "luxon": "^1.23.0",
     "popper.js": "^1.16.1",
@@ -42,6 +42,6 @@
     ]
   },
   "devDependencies": {
-    "typescript": "^3.7.4"
+    "typescript": "^3.8.3"
   }
 }
