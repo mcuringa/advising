@@ -1,4 +1,7 @@
 /* general styles */
+.container-fluid {
+  max-width: 1400px;
+}
 .bg-gold {
   background: #ffb500 !important;
 }

@@ -1,23 +1,26 @@
 import React from "react";
 import "./Toggle.css";
+import _ from "lodash";
 
 class Toggle extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      open: props.open
-    }
+    this.state = {  };
   }
+
 
   render() {
     // const css = "d-flex align-items-center";
-    const css = "Toggle" + this.props.css;
-    const show = (this.state.open)?"d-block":"d-none";
-    const toggle = ()=>{ this.setState({open:!this.state.open}); };
+    const css = "Toggle " + this.props.css;
+    const open = _.isUndefined(this.state.open)? this.props.open : this.state.open;
+    const show = (open)?"d-block":"d-none";
+
+
+    const toggle = ()=>{ this.setState({open:!open}); };
     return (
       <div className={css}>
         <div className="ToggleTitle d-flex align-items-center">
-          <ToggleIcon open={this.state.open} toggle={toggle} />
+          <ToggleIcon open={open} toggle={toggle} />
           {this.props.title}
         </div>
         <div className={`card card-body ${show}`}>{this.props.children}</div>

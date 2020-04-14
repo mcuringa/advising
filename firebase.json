@@ -12,7 +12,7 @@
         "function": "app"
       },
       {
-        "source": "!/@(js|css|api/**)/**",
+        "source": "!/@(js|css)/**",
         "destination": "/index.html"
       }
     ]

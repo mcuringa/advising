@@ -38,7 +38,6 @@ class CourseScreen extends React.Component {
         students: studentMap,
         loading: false
       });
-      console.log("state", this.state);
     }
 
     Promise.all([net.get(courseUrl), net.get(planUrl), net.get(studentUrl)]).then(store);
@@ -59,6 +58,34 @@ class CourseScreen extends React.Component {
       </div>
     )
   }
+}
+
+function CoursePlanningData(course, plans, students) {
+  const now = dt.local();
+  let isCompleted = (c)=> {
+    if(c.course_num !== course.course_num) {
+      return false;
+    }
+    let sub = dt.fromString(c.term, "yy/LL") < now;
+    return c.completed || sub;
+  }
+  let filterCompleted = (p) => {
+    let x = _.filter(p.courses, isCompleted);
+    return x.length > 0;
+  }
+  let completed = _.filter(plans, filterCompleted);
+  let need = _.difference(plans, completed);
+  need = _.map(need, s=>students[s.student_id]);
+  completed = _.map(completed, s=>students[s.student_id]);
+
+  return {
+    course: course,
+    plans: plans,
+    students: students,
+    completed: completed,
+    need: need
+  }
+
 }
 
 function CourseDetail (props) {
@@ -137,5 +164,5 @@ function CourseLink (props) {
   )
 }
 
-
+export { Online, International, CoursePlanningData };
 export default CourseScreen;

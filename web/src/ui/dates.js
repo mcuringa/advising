@@ -5,8 +5,9 @@ function nextTerm(term) {
     term = DateTime.local();
   }
   else {
+    console.log("term string: " +  term);
     term = DateTime.fromString(term,"yy/LL");
-    // console.log("term: " +  term.toFormat("LL/dd/yyyy"));
+    console.log("term: " +  term.toFormat("LL/dd/yyyy"));
   }
 
   let spring = term.set({month:2, day: 1});
@@ -40,7 +41,7 @@ function termName (term) {
   return `${semesters[month]} 20${year}`;
 }
 
-
+// eslint-disable-next-line
 function test() {
   console.log("20/05", nextTerm());
   console.log("20/05", nextTerm("20/02"));

@@ -12,10 +12,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-
+// origin: ["https://ed-tech-portal.firebaseapp.com/",'http://localhost:3000']
 const corsOptions = {
-  origin: ['http://localhost:3000',]
+  origin: ["https://ed-tech-portal.firebaseapp.com/", "http://localhost:3000"]
 }
+
 app.use(cors(corsOptions));
 // restrict requests to authorized adelphi users
 app.use(auth.authRequest);
@@ -71,9 +72,11 @@ const restPut = async (req, res, next) => {
 
 
 // =========================================== testing
-const dataTest = (req, res) => {
+const dataTest = async (req, res, next) => {
   console.log("rest get params:", req.params);
-  let data = [{msg: "Hello, world."}, {msg: "foo"}];
+  // let courses = await db.get("courses");
+
+  let data = [{msg: "Hello, world."}, {"auth user": req.user}];
   res.json(data);
   next();
 }

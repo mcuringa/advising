@@ -1,7 +1,7 @@
 import React from "react";
 import _ from "lodash";
 import Sortable from 'sortablejs';
-
+import  * as dates from "./ui/dates.js";
 // import { Link } from "react-router-dom";
 
 import net from "./net.js";
@@ -16,9 +16,12 @@ class Plan extends React.Component {
          plan: {},
       courses: [],
         dirty: false,
-      loading: true
+      loading: true,
+      electives: [],
+      required: []
     };
     this.onDragEnd = this.onDragEnd.bind(this);
+    this.calcCoursedNeeded = this.calcCoursedNeeded.bind(this);
 
   }
 
@@ -26,8 +29,14 @@ class Plan extends React.Component {
     const store = ([plans, courses])=>  {
       console.log("got plan", plans.data[0]);
       courses = _.sortBy(courses.data, "course_num");
+      let plan = plans.data[0];
+      let [required, electives] = this.calcCoursedNeeded(plan);
+      console.log("required,electives", required, electives);
+
       this.setState( {
-        plan: plans.data[0],
+        plan: plan,
+        required: required,
+        electives: electives,
         courses: courses,
         loading: false
       });
@@ -73,6 +82,12 @@ class Plan extends React.Component {
 
   }
 
+  calcCoursedNeeded(plan) {
+    let electives = _.reduce(_.filter(plan.courses,c=>!c.required),(x,c)=>x+Number(c.credits)||0, 0);
+    let required = _.reduce(_.filter(plan.courses,c=>c.required),(x,c)=>x+Number(c.credits)||0, 0);
+    return [required, electives];
+  }
+
   onDragEnd (evt) {
     let plan = this.state.plan;
     let planCourses = plan.courses;
@@ -101,18 +116,26 @@ class Plan extends React.Component {
 
     const saved = (r)=> {
       console.log("saved plan with result:", r);
-      // this.setState({dirty: false, loading: false, plan: plan});
+      const [required, electives] = this.calcCoursedNeeded(plan);
+      // can't update state b/c DOM isn't stable...just cheat
+      document.getElementById("ReqCredits").innerHTML = required;
+      if (required > 23) {
+        document.getElementById("ReqCredits").className = "text-danger";
+      }
+      document.getElementById("ElectCredits").innerHTML = electives;
+      if (electives > 9) {
+        document.getElementById("ElectCredits").className = "text-danger";
+      }
+      document.getElementById("TotalCredits").innerHTML = required + electives;
+      if (required + electives > 32) {
+        document.getElementById("TotalCredits").className = "text-danger";
+      }
     }
     const url = "/api/plans/" + plan._id;
     net.put(url, plan).then(saved).catch((e)=>{
       console.log("failed to save plan:", e);
-      this.setState({loading: false, error: "Failed to save changes to plan of study. " + e.stack});
     });
 
-    // console.log("course number:", course_num);
-    // console.log("from:", from);
-    // console.log("to:", to);
-    // console.log("drag event:", evt);
   }
 
   render() {
@@ -131,7 +154,7 @@ class Plan extends React.Component {
           <div className="d-flex">
             <h5 className="pb-0 mb-0">plan of study</h5>
           </div>
-          <PlanHeader courses={this.state.plan.courses} />
+          <PlanHeader electives={this.state.electives} required={this.state.required} />
           <PlanOfStudy courses={this.state.plan.courses} terms={terms} />
         </div>
         <div className="col-md-6">
@@ -153,27 +176,12 @@ class Plan extends React.Component {
 function addNextTerms (plan, count) {
 
   let terms = new Set(_.map(plan.courses,c=>c.term));
-
-
-  let y = new Date().getFullYear() % 2000;
-
-  let t = 2;
-  let m = new Date().getMonth() + 1;
-  if (m > 10 || m < 4) {
-    t = 0;
-  }
-  else if ( m < 7) {
-    t = 1;
-  }
-  const termStart = [2, 5, 9];
+  let term = dates.nextTerm();
 
   for (let i = 0; i < count; i++) {
-    let term = `${y}/0${termStart[t % 3]}`;
     terms.add(term);
-    t++;
-    if (t === 0) {
-      y++;
-    }
+    term = dates.nextTerm(term);
+
   }
   return Array.from(terms);
 }
@@ -214,12 +222,11 @@ function CourseItem(course, i)  {
 }
 
 function PlanHeader (props) {
-    let electives = _.reduce(_.filter(props.courses,c=>!c.required),(x,c)=>x+Number(c.credits)||0,0);
-    let required = _.reduce(_.filter(props.courses,c=>c.required),(x,c)=>x+Number(c.credits)||0,0);
     return (
       <div>
-        <small>required: {required} / 23 | electives: {electives} / 9 | total: {electives + required} / 32</small>
-
+        <small>required: <span id="ReqCredits">{props.required}</span> / 23
+        | electives: <span id="ElectCredits">{props.electives}</span> / 9
+        | total: <span id="TotalCredits">{props.electives + props.required}</span> / 32</small>
       </div>
     )
 }

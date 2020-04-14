@@ -7,8 +7,10 @@ import CourseForm from "./CourseForm";
 import ScheduleScreen from "./Schedule";
 import StudentsScreen from "./StudentList";
 import StudentDetail from "./StudentDetail";
+import Test from "./Test";
 
 import fb from "./firebase-tools.js";
+// import net from "./net.js";
 
 import "./App.css";
 
@@ -21,8 +23,8 @@ function App() {
     <Router>
       <div className="App">
         <SecureRoutes />
-        <Route exact path="/privacy"
-          render={(props) => <PageScreen {...props} page="privacy" />}/>
+        <Route exact path="/privacy" render={(props) => <PageScreen {...props} page="privacy" />}/>
+        <Route exact path="/test"render={(props) => <Test />}/>
       </div>
     </Router>
   );
@@ -37,7 +39,9 @@ class SecureRoutes  extends React.Component {
   }
 
   componentDidMount() {
+
     const watchUser = (user)=> {
+      // net.get("/api/updateuser").then((u)=>{this.setState({user: u});});
       this.setState({user: user});
     }
     fb.getAuthUser(watchUser).then((u)=>{this.setState({user:u})});
@@ -60,7 +64,7 @@ class SecureRoutes  extends React.Component {
     return (
       <div className="SecureRoutes">
         <Header  />
-        <div className="container">
+        <div className="container-fluid">
           <Switch>
             <PropsRoute exact path="/" component={Home} />
             <PropsRoute path="/sign-in" component={SignIn} />
@@ -142,7 +146,7 @@ function Header(props) {
 function Footer (props) {
   return (
     <footer className="MainFooter border bg-brown mb-0 mt-2 fixed-bottom">
-      <p className="container text-white p-2">
+      <p className="container-fluid text-white p-2">
         The graduate program in Educational Technology at Adelphi University.
       </p>
     </footer>

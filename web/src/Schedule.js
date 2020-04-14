@@ -1,9 +1,13 @@
 import React from "react";
 import _ from "lodash";
-import {DateTime} from "luxon";
+// import {DateTime} from "luxon";
 import net from "./net.js";
 import { LoadingSpinner, StatusIndicator, StringToType } from "./ui/form-ui";
+import Toggle from "./ui/Toggle";
 import  * as dates from "./ui/dates.js";
+import {Online, International, CoursePlanningData} from "./CourseList";
+import CourseScheduleForm from "./CourseScheduleForm";
+
 
 class ScheduleScreen extends React.Component {
   constructor(props) {
@@ -12,23 +16,32 @@ class ScheduleScreen extends React.Component {
           plans: [],
         courses: [],
       schedules: [],
+      students: {},
           dirty: false,
         loading: true
     };
   }
 
   componentDidMount() {
-    const store = ([plans, courses, schedules])=>  {
+    const store = ([plans, courses, schedules, students])=>  {
       courses = _.sortBy(courses.data, "course_num");
-      schedules = _.sortBy(schedules.data, "term");
+      students = _.filter(students.data, s=>s.active && !s.graduated);
+
       this.setState( {
         plans: plans.data,
         courses: courses,
-        schedules: schedules,
+        schedules: schedules.data || [],
         loading: false
       });
     }
-    Promise.all([net.get("/api/plans"), net.get("/api/courses"), "/api/plans"]).then(store);
+    const promises = [
+      net.get("/api/plans"),
+      net.get("/api/courses"),
+      net.get("/api/schedules"),
+      net.get("/api/students")
+    ];
+
+    Promise.all(promises).then(store);
   }
 
   render() {
@@ -37,66 +50,71 @@ class ScheduleScreen extends React.Component {
     }
     let courses = this.state.courses;
     let schedules = this.state.schedules;
+    schedules = _.reverse(_.sortBy(schedules, "term"));
+    let plans = this.state.plans;
 
     const addSchedule = ()=> {
       let term = dates.nextTerm();
-      if (schedules[0]) {
-        term = dates.nextTerm(this.props.schedule[0])
+      if (schedules.length) {
+        term = dates.nextTerm(schedules[0].term);
       }
       schedules = _.concat(schedules, new Schedule(term));
       this.setState({schedules: schedules});
     }
 
     console.log("schedules:", schedules);
+    const makeSchedule = (s, i) => {
+      return (
+        <ScheduleForm key={s.term} open={i === 0} schedule={s} courses={courses} plans={plans} />
+      )
+    }
 
     return (
 
-      <div className="row">
-        <div className="col-md-6">
-          <div className="d-flex">
-            <h5 className="pb-0 mb-0">schedule</h5>
-            <button className="btn btn-sm btn-primary" onClick={addSchedule}>add</button>
-          </div>
+
+      <div className="mt-2 mb-2">
+        <div className="d-flex">
+          <h5 className="pb-0 mb-0">course scheduling</h5>
+          <button className="btn btn-sm btn-primary ml-2 pt-0 pb-0" onClick={addSchedule}>add term</button>
         </div>
-        <div className="col-md-6">
-          <h5>courses</h5>
-          <CourseList courses={courses} />
-        </div>
+        { _.map(schedules, makeSchedule)  }
+
       </div>
     )
   }
 }
 
 
-function CourseList (props) {
-
-  const CourseList = _.map(props.courses, CourseItem)
-
-  return (
-    <div id="CourseList">
-      {CourseList}
-    </div>
-  )
-}
-
-function CourseSymbol (props) {
-  if (props.course.required) {
-    return (<span className="RequiredCourse text-primary pl-1 pr-1">✓</span>);
-  }
-  return (<span className="ElectiveCourse text-success pl-1 pr-1">★</span>);
-}
-
-function CourseItem(course, i)  {
-  let css = "";
-  return (
-    <div key={i} className={`CourseItem list-group-item ${css}`} data-course_num={course.course_num}>
-      <span className="pl-2 pt-1">{course.course_num} {course.course_title}</span>
-      <CourseSymbol course={course} /> ({course.credits})
-    </div>
-  )
-}
-
-
+// function CourseList (props) {
+//   const schedule = props.schedule;
+//   let planned = _.filter(props.reg, r=>r.term === schedule.term);
+//   let total = planned.length;
+//   // let aui =
+//   const CourseList = _.map(planned, (c,i)=><CourseItem course={c} i={String(i)} />)
+//
+//   return (
+//     <div className="PlannedCourses">
+//       {CourseList}
+//     </div>
+//   )
+// }
+//
+// function CourseSymbol (props) {
+//   if (props.course.required) {
+//     return (<span className="RequiredCourse text-primary pl-1 pr-1">✓</span>);
+//   }
+//   return (<span className="ElectiveCourse text-success pl-1 pr-1">★</span>);
+// }
+//
+// function CourseItem(course, i)  {
+//   let css = "";
+//   return (
+//     <div key={i} className={`CourseItem list-group-item ${css}`} data-course_num={course.course_num}>
+//       <span className="pl-2 pt-1">{course.course_num} {course.course_title}</span>
+//       <CourseSymbol course={course} /> ({course.credits})
+//     </div>
+//   )
+// }
 
 function Schedule(term) {
   return {
@@ -110,11 +128,32 @@ class ScheduleForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      schedule: props.term,
+      schedule: props.schedule,
       loading: false,
       dirty: false
     };
     this.handleChange = this.handleChange.bind(this);
+    this.save = this.save.bind(this);
+  }
+
+  save() {
+    let schedule = this.state.schedule;
+
+    const url = "/api/schedules/";
+    const saved = ()=> {
+      this.setState({dirty: false, loading: false});
+    }
+    const err = (e) => {
+      console.log("failed to save schedule:", e);
+      this.setState({loading: false, error: "Failed to save changes. " + e.stack});
+    }
+    this.setState({ loading: true });
+    if (schedule._id) {
+      net.put(url, schedule).then(saved).catch(err);
+    }
+    else {
+      net.put(url, schedule).then(saved).catch(err);
+    }
   }
 
   handleChange(e) {
@@ -127,22 +166,30 @@ class ScheduleForm extends React.Component {
   }
 
   render() {
-    return (
-      <div className="card mb-2">
-        <div className="card-header d-flex justify-content-between">
-          <h4>{dates.termName(this.props.term)}</h4>
-          <StatusIndicator loading={this.state.loading}
-            dirty={this.state.dirty}
-            className="pr-3" />
-        </div>
-        <div className="card-body"></div>
+    const schedule = this.state.schedule;
+
+    const Title = (
+      <div className="d-flex justify-content-between flex-fill ">
+        <strong>{dates.termName(schedule.term)}</strong>
+        <StatusIndicator loading={this.state.loading}
+          dirty={this.state.dirty}
+          className="pr-3" />
       </div>
+    );
+
+    const show = this.props.open === true;
+    return (
+      <Toggle key={schedule.term} debug={schedule.term} css="card mb-2 toggle-card-header"
+        title={Title} open={show}>
+        <div className="card-body">
+          <p>list courses here</p>
+          <CourseScheduleForm />
+        </div>
+      </Toggle>
+
     );
   }
 }
-
-
-
 
 
 export default ScheduleScreen;

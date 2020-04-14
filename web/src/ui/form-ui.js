@@ -208,6 +208,21 @@ const RadioButtonGroup = (props)=>
     );
 }
 
+const Select = (props) => {
+  console.log("select options:", props.options);
+  const Options = _.map(props.options, (v,k)=> {
+    console.log("opt:", k , v);
+    // return <option>{k}</option>
+    return (<option key={k} value={k}>{v}</option>)
+  } )
+
+  return (
+    <select id={props.id} value={props.value} className="custom-select">
+      {Options}
+    </select>
+  )
+}
+
 const RadioButton = (props)=>
 {
   return(
@@ -264,5 +279,6 @@ export {
   InvalidMsg,
   LoadingSpinner,
   Checkbox,
+  Select,
   StringToType
 };

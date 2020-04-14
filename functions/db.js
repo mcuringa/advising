@@ -8,11 +8,13 @@ const url = config.dbURL;
 const store = config.store;
 let client = null;
 
+
 async function connect(collection) {
   //
-  // console.log("----------------------------------\n\n");
-  // console.log("url", url);
-  // console.log("\n\n----------------------------------");
+  console.log("----------------------------------\n\n");
+  console.log("url", url);
+  console.log("store", store);
+  console.log("\n\n----------------------------------");
 
   // if (!client) {
     client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -22,12 +24,18 @@ async function connect(collection) {
   // }
 
   let p = (resolve, reject) => {
-    // console.log("connecting...");
+
+    const err = (e)=>{
+      console.log("error connectiong", e);
+      reject(e);
+    }
+
+    console.log("connecting...");
     client.connect().then(() => {
-      // console.log("connected...");
+      console.log("connected...");
       let col = client.db(store).collection(collection);
       resolve(col);
-    }).catch(resolve);
+    }).catch(err);
   }
 
   return new Promise(p);
