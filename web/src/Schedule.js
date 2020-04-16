@@ -134,6 +134,7 @@ class ScheduleForm extends React.Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.save = this.save.bind(this);
+    this.saveCourse = this.saveCourse.bind(this);
   }
 
   save() {
@@ -148,21 +149,39 @@ class ScheduleForm extends React.Component {
       this.setState({loading: false, error: "Failed to save changes. " + e.stack});
     }
     this.setState({ loading: true });
+
+    console.log("saving schedule:", schedule);
     if (schedule._id) {
-      net.put(url, schedule).then(saved).catch(err);
+      net.put(url + schedule._id, schedule).then(saved).catch(err);
     }
     else {
-      net.put(url, schedule).then(saved).catch(err);
+      net.post(url, schedule).then(saved).catch(err);
     }
+  }
+
+  saveCourse(course) {
+    let schedule = this.state.schedule;
+    let courses = schedule.courses;
+    let i = _.findIndex(courses, c=>c.course_num === course.course_num);
+    if (i === -1) {
+      courses = _.concat(courses, course);
+    }
+    else {
+      courses[i] = course;
+    }
+    console.log("Saving courses:", courses);
+    schedule.courses = courses;
+    this.setState({schedule: schedule, dirty: true});
+    this.save();
   }
 
   handleChange(e) {
     e.preventDefault();
-    let course = this.state.course;
+    let schedule = this.state.schedule;
     let key = e.target.name || e.target.id;
-    course[key] = StringToType(e.target.value);
-    this.setState({ course: course, dirty: true });
-    // this.save();
+    schedule[key] = StringToType(e.target.value);
+    this.setState({ schedule: schedule, dirty: true });
+    this.save()
   }
 
   render() {
@@ -178,12 +197,13 @@ class ScheduleForm extends React.Component {
     );
 
     const show = this.props.open === true;
+    const courses = _.map(schedule.courses, c=><CourseScheduleForm key={c.course_num} save={this.saveCourse} course={c}/>);
     return (
       <Toggle key={schedule.term} debug={schedule.term} css="card mb-2 toggle-card-header"
         title={Title} open={show}>
         <div className="card-body">
-          <p>list courses here</p>
-          <CourseScheduleForm />
+          <CourseScheduleForm className="bg-dark p-2 rounded" key="new" save={this.saveCourse} empty/>
+          {courses}
         </div>
       </Toggle>
 

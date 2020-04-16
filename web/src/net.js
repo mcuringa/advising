@@ -5,46 +5,53 @@
  *
  * @author mxc
  */
-
 import localforage from "localforage";
 import _ from "lodash";
 import config from "./config.json";
 const serverRoot = config.serverRoot;
 
+const maxStale = 1000 * 60;
 const cacheUrls = [
-  "/api/plans",
-  "/api/courses",
-  "/api/schedules",
-  "/api/students"
-]
+  serverRoot + "/api/plans",
+  serverRoot + "/api/courses",
+  serverRoot + "/api/schedules",
+  serverRoot + "/api/students"
+];
 
 const lf = localforage.createInstance({
   name: "net-cache"
 });
 
 
-const cache = async (method, url, data) => {
-
-  if(method === "GET" && _.includes(cacheUrls, url)) {
-    const item = {data: data, ts: new Date().getMilliseconds()}
-    console.log("caching data", url, item);
-    lf.setItem("url", item);
+const cache = async (method, url, response, data) => {
+  if(method === "GET" && response.ok && _.includes(cacheUrls, url)) {
+    const item = {data: data, ts: new Date().getTime()}
+    // console.log("caching data", url, item);
+    lf.setItem(url, item);
   }
 
 }
 
 const getFromCache = async (method, url) => {
-  console.log("checking cache", url);
+
+  // console.log("cache check:", url, method );
   if(method !== "GET") {
     return null;
   }
 
-  let data = await lf.getItem(url);
-  if (!data) {
+  let item = await lf.getItem(url);
+  // console.log("cache item", item);
+  if (!item) {
     return null;
   }
-  console.log("found cache data", data);
-  return data;
+  const now = new Date().getTime();
+  const delta = now - Number(item.ts);
+  if (delta > maxStale) {
+    lf.removeItem(item.url);
+    return null;
+  }
+  // console.log("found cache data", item);
+  return item.data;
 }
 
 
@@ -62,6 +69,7 @@ const doFetch = async (method, url, data) => {
     "Content-Type": "application/json"
   };
 
+  // don't change to localforage until tests
   let token = await localStorage.getItem("jwt");
   if(token) {
     // console.log("loaded auth token");
@@ -85,21 +93,22 @@ const doFetch = async (method, url, data) => {
 
   const promiseToReadResponse = (resolve, reject)=> {
     const handleResponse = (r) => {
+
       const handleJson = (json)=> {
         const msg = {
           "data": json,
           "status": r.status
         }
+        cache(method, url, r, json);
         resolve(msg);
       }
-
-      cache(method, url, r);
       r.json().then(handleJson);
     }
 
-    const handleCache = (cache)=> {
-      if (cache) {
-        handleResponse(cache);
+    const handleCache = (cachedData)=> {
+      if (cachedData) {
+        // console.log("cachedData", cachedData);
+        resolve({data:cachedData, status:304});
       }
       else {
         fetch(url, params).then(handleResponse, reject);

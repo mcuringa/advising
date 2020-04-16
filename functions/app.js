@@ -90,8 +90,8 @@ const secureAPI = (req, res, next)=> {
   // res.header("Access-Control-Allow-Origin", "*");
   app.options('/api/:collection', cors());
   app.options('/api/:collection/:id', cors());
-  app.options('/api/:collection', cors());
-  app.options('/api/:collection/:id', cors());
+  // app.options('/api/:collection', cors());
+  // app.options('/api/:collection/:id', cors());
   next();
 }
 

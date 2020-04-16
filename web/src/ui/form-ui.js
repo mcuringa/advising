@@ -37,14 +37,14 @@ const Checkbox = (props)=> {
   if(props.hide) {
     return null;
   }
-  const extraCss = props.className || "";
+  const css = "form-group" + props.className || "";
 
   return (
-    <div className="form-group">
+    <div className={css}>
       <div className="form-check">
         <input type="checkbox"
           value={props.value}
-          className={`form-check-input ${extraCss}`}
+          className={`form-check-input`}
           id={props.id}
           name={props.id}
           checked={props.checked}

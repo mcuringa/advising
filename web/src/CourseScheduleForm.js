@@ -5,6 +5,7 @@ import net from "./net.js";
 import { StatusIndicator,
   TextGroup,
   TextInput,
+  TextArea,
   Checkbox,
   Select,
   StringToType
@@ -12,7 +13,6 @@ import { StatusIndicator,
 
 function ScheduledCourse() {
   return {
-    _id: null,
     course_num: "",
     course_title: "",
     required: false,
@@ -35,32 +35,37 @@ class CourseScheduleForm extends React.Component {
       loading: false,
       dirty: false
     };
+    this.onSubmit = this.onSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.save = _.debounce(this.props.save, 300);
   }
 
   handleChange(e) {
     e.preventDefault();
-    console.log("handling: ", e.target);
     let course = this.state.course;
     let key = e.target.name || e.target.id;
-    console.log("data: ", key, e.target.value);
     course[key] = StringToType(e.target.value);
     this.setState({ course: course, dirty: true });
-    // this.props.save();
+    this.save(course);
+  }
+
+  onSubmit (e) {
+    console.log("submitting");
+    e.preventDefault();
+    this.props.save(this.state.course);
   }
 
   render() {
 
     const course = this.state.course;
-    console.log("course", course);
     const days = {
-      "Monday": "Mon",
-      "Tuesday": "Tue",
-      "Wednesday": "Wed",
-      "Thursday": "Thu",
-      "Friday": "Fri",
-      "Saturday": "Sat",
-      "Sunday": "Sun"
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat",
+      "sunday": "Sun"
     };
 
     const formats = _.keyBy(["online", "blended", "campus"], o=>o);
@@ -75,56 +80,55 @@ class CourseScheduleForm extends React.Component {
     const locationDisabled = course.format === "online" || null;
 
     return (
-      <div className="">
+      <div className={this.props.className}>
         <form className="CourseForm" onSubmit={this.onSubmit}>
-          <div className="row">
-            { /* course num, title, format */ }
-            <div className="p-1 col-md-2 col-lg-1">
-              <TextInput className="form-control-sm" onChange={this.handleChange} id="course_num"  placeholder="course #" value={course.course_num} />
+
+          <div className="form-row mb-1"> { /* course num, title, instructor */ }
+            <div className="col-md-2">
+              <TextInput className="form-control-sm" onChange={this.handleChange} id="course_num"  placeholder="course #" value={course.course_num} required />
             </div>
-            <div className="p-1 col-md-7 col-lg-6">
+            <div className="col-md-6">
               <TextInput className="form-control-sm" onChange={this.handleChange} id="course_title" placeholder="title" value={course.course_title} required />
             </div>
-            <div className="p-1 col-md-3 col-lg-2">
+            <div className="col-md-3">
+              <TextInput className="form-control-sm" onChange={this.handleChange} id="instructor"  placeholder="instructor" value={course.instructor} />
+            </div>
+            <div className="col-md-1">
+              <button className="btn btn-sm btn-primary" type="submit">S</button>
+              <button className="btn btn-sm btn-danger" type="button">X</button>
+            </div>
+          </div>
+
+          <div className="form-row"> { /* format, day/time, credits, required, buttons */ }
+            <div className="col-md-2">
               <Select id="format" className="form-control-sm" options={formats} onChange={this.handleChange} value={course.format} />
             </div>
-            <div className="p-1 col-md-1">
+
+            <div className="col-md-2">
+              <Select id="format" onChange={this.handleChange} className="form-control-sm" options={days} selected={course.day} locationDisabled />
+            </div>
+
+            <div className="col-md-2">
+              <TextInput className="form-control-sm" type="time" onChange={this.handleChange} id="start" placeholder="start" value={course.start} locationDisabled />
+            </div>
+            <div className="col-md-2">
+              <TextInput className="form-control-sm" type="time" onChange={this.handleChange} id="end" placeholder="start" value={course.end} locationDisabled />
+            </div>
+            <div className="col-md-1">
               <TextInput className="form-control-sm" onChange={this.handleChange} id="credits"
                 divolder="credits"
                 value={course.credits} type="number"
                 min="0" max="6" />
             </div>
-            <div className="p-1 col-md-2 border rounded">
-              <Checkbox onChange={toggleRequired} id="required" label="required" />
-            </div>
-
-
-            <div className="p-1 col-md-2">
-              <TextInput className="form-control-sm" onChange={this.handleChange} id="instructor"  placeholder="instructor" value={course.instructor} />
-            </div>
-
-
-
-            <div className="p-1 col-md-2">
-              <Select id="format" onChange={this.handleChange} className="form-control-sm" options={days} selected={course.day} locationDisabled />
-            </div>
-            <div className="p-1 col-md-2">
-              <TextInput className="form-control-sm" type="time" onChange={this.handleChange} id="start" placeholder="start" value={course.start} locationDisabled />
-            </div>
-            <div className="p-1 col-md-2">
-              <TextInput className="form-control-sm" type="time" onChange={this.handleChange} id="end" placeholder="start" value={course.end} locationDisabled />
+            <div className="col-md-2 bg-light rounded">
+              <small><Checkbox className="p-0 mt-1" onChange={toggleRequired} id="required" label="required" /></small>
             </div>
           </div>
         </form>
+        <hr />
       </div>
     )
   }
-}
-
-function Col(props) {
-  return (
-    <div className={`p-1 col-md-${props.cols} ${props.css||""}`}>{props.children}</div>
-  )
 }
 
 
