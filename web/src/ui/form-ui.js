@@ -1,6 +1,7 @@
 import React from "react";
 import _ from "lodash";
-import {DateTime as dt } from "luxon";
+import {DateTime} from "luxon";
+import { OctogonFill } from "./icons";
 
 const LoadingSpinner = (props)=> {
   if (!props.loading) {
@@ -14,12 +15,19 @@ const LoadingSpinner = (props)=> {
     );
 }
 
+const LoadingButton = (props)=> {
+  if (props.loading) {
+    return <LoadingSpinner loading />;
+  }
+  return props.Button;
+}
+
+
 const StatusIndicator = (props)=> {
-  let clazz = "text-success";
-  let icon = "◆";
+  let clazz = "";
+  let icon = <OctogonFill className="icon-success" />;
   if (props.dirty) {
-    icon = "◈";
-    clazz = "text-warning";
+    icon = <OctogonFill className="icon-warning" />;
   }
   if(props.loading) {
     clazz += " d-none";
@@ -37,7 +45,7 @@ const Checkbox = (props)=> {
   if(props.hide) {
     return null;
   }
-  const css = "form-group" + props.className || "";
+  const css = props.className || "";
 
   return (
     <div className={css}>
@@ -250,8 +258,12 @@ const StringToType = (v)=> {
     return n;
   }
 
-  if( dt.fromISO(v).isValid ) {
-    return new Date(v);
+  //get time stamps in ISO format
+  if(v[4] === "-" && v[6]) {
+    let dt = DateTime.fromISO(v);
+    if( dt.isValid ) {
+      return dt.toJSDate();
+    }
   }
 
   if (v.toLowerCase() === "true") {
@@ -268,15 +280,16 @@ const StringToType = (v)=> {
 
 
 export {
+  StatusIndicator,
+  LoadingSpinner,
+  LoadingButton,
   RadioButtonGroup,
   TextGroup,
   TextInput,
   TextAreaGroup,
-  StatusIndicator,
   Label,
   ValidMsg,
   InvalidMsg,
-  LoadingSpinner,
   Checkbox,
   Select,
   StringToType

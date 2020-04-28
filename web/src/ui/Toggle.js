@@ -12,6 +12,11 @@ class Toggle extends React.Component {
 
 
   render() {
+
+    if (this.props.plain) {
+      return <PlainToggle {...this.props} />
+    }
+
     // const css = "d-flex align-items-center";
     const css = "Toggle " + this.props.css;
     const open = _.isUndefined(this.state.open)? this.props.open : this.state.open;
@@ -26,6 +31,34 @@ class Toggle extends React.Component {
           {this.props.title}
         </div>
         <div className={`card card-body ${show}`}>{this.props.children}</div>
+      </div>
+    )
+
+  }
+}
+
+class PlainToggle extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {  };
+  }
+
+
+  render() {
+    // const css = "d-flex align-items-center";
+    const css = "PlainToggle " + this.props.className;
+    const open = _.isUndefined(this.state.open)? this.props.open : this.state.open;
+    const show = (open)?"d-block":"d-none";
+
+
+    const toggle = ()=>{ this.setState({open:!open}); };
+    return (
+      <div className={css}>
+        <div className="PlainToggleTitle d-flex align-items-center">
+          <ToggleIcon open={open} toggle={toggle} />
+          {this.props.title}
+        </div>
+        <div className={`${show}`}>{this.props.children}</div>
       </div>
     )
 

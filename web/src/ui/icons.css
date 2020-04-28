@@ -1,4 +1,11 @@
 
+.icon-gold, .text-gold svg {
+  background: #ffb500 !important;
+}
+
+.icon-brown {
+  background: #4f2c1d !important;
+}
 
 .icon-primary {
   color: #007bff;

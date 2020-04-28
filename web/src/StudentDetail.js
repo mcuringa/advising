@@ -1,6 +1,7 @@
 import React from "react";
 import net from "./net.js";
 import { StatusIndicator, TextInput, Checkbox, LoadingSpinner } from "./ui/form-ui";
+import PageSpinner from "./ui/PageSpinner";
 import Toggle from "./ui/Toggle";
 import Plan from "./Plan";
 
@@ -33,7 +34,7 @@ class StudentDetail extends React.Component {
   render() {
 
     if (this.state.loading) {
-      return <LoadingSpinner loading />
+      return <PageSpinner msg="loading student details" loading />
     }
     const student = this.state.student;
     const title = (<h3>{this.state.student.first} {this.state.student.last}</h3>);
@@ -54,7 +55,7 @@ class StudentDetail extends React.Component {
           </Toggle>
         </div>
 
-        <Plan student_id={student.student_id} />
+        <Plan student={student} student_id={student.student_id} />
       </section>
     )
   }

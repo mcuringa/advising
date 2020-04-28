@@ -89,6 +89,7 @@ class Plan extends React.Component {
   }
 
   onDragEnd (evt) {
+    const studentInfo = _.pick(this.props.student, ["student_id", "first", "last"]);
     let plan = this.state.plan;
     let planCourses = plan.courses;
     let courses = this.state.courses;
@@ -99,12 +100,15 @@ class Plan extends React.Component {
     let index = _.findIndex(plan.courses,c=>c.course_num === course_num);
 
     if (from === "CourseList") { // from course list to a term
-      let course = _.find(courses,c=>c.course_num === course_num);
+      let course = _.clone(_.find(courses,c=>c.course_num === course_num));
       course.term = to;
+      // console.log("student info:", studentInfo);
+      course = _.merge(course, studentInfo);
+      // console.log("course info:", course);
       planCourses = _.concat(planCourses, course);
     }
     else if (to === "CourseList") { // to course list (remove course)
-      _.pullAt(planCourses, [index])
+      _.pullAt(planCourses, [index]);
     }
     else { // change term
       if (index > -1) {
@@ -210,7 +214,7 @@ function CourseItem(course, i)  {
   let handle = (<span className="drag-handle">⣿</span>);
   if (course.completed) {
     css = "completed font-italic";
-    handle = null;
+    // handle = null; //hides the handle for completed courses
   }
   return (
     <div key={i} className={`CourseItem drag-item list-group-item ${css}`} data-course_num={course.course_num}>

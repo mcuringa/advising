@@ -1,18 +1,17 @@
 import React from "react";
 import _ from "lodash";
 
-import net from "./net.js";
-import { StatusIndicator,
-  TextGroup,
+import {
   TextInput,
-  TextArea,
-  Checkbox,
   Select,
   StringToType
 } from "./ui/form-ui";
 
+import { DeleteIcon, SaveIcon } from "./ui/icons";
+
 function ScheduledCourse() {
   return {
+    course_id: null,
     course_num: "",
     course_title: "",
     required: false,
@@ -30,8 +29,9 @@ function ScheduledCourse() {
 class CourseScheduleForm extends React.Component {
   constructor(props) {
     super(props);
+    const blank = new ScheduledCourse();
     this.state = {
-      course: props.course || new ScheduledCourse(),
+      course: _.merge(blank, props.course) || blank,
       loading: false,
       dirty: false
     };
@@ -44,15 +44,24 @@ class CourseScheduleForm extends React.Component {
     e.preventDefault();
     let course = this.state.course;
     let key = e.target.name || e.target.id;
+    if (key === "format" && e.target.value === "online") {
+      course.location = "online";
+    }
     course[key] = StringToType(e.target.value);
     this.setState({ course: course, dirty: true });
-    this.save(course);
+    if(course.course_id) {
+      this.save(course);
+    }
   }
 
   onSubmit (e) {
-    console.log("submitting");
+    let course = this.state.course;
     e.preventDefault();
-    this.props.save(this.state.course);
+    if (!course.course_id) {
+      e.target.reset();
+      this.setState({course: new ScheduledCourse()})
+    }
+    this.props.save(course);
   }
 
   render() {
@@ -69,15 +78,10 @@ class CourseScheduleForm extends React.Component {
     };
 
     const formats = _.keyBy(["online", "blended", "campus"], o=>o);
+    const locations = {"online":"online", "MC":"Manhattan", "GC":"Garden City"};
 
-    const toggleRequired = ()=> {
-      let e = { target: {} };
-      e.target.id = "required";
-      e.target.value = !course.required;
-      this.handleChange(e);
-    }
-
-    const locationDisabled = course.format === "online" || null;
+    const locationCss = (course.format === "online")?"d-none":"";
+    const DelButton = (course.course_id)?(<button className="btn btn-sm btn-light" onClick={this.props.delete} type="button"><DeleteIcon /></button>) : null;
 
     return (
       <div className={this.props.className}>
@@ -85,47 +89,43 @@ class CourseScheduleForm extends React.Component {
 
           <div className="form-row mb-1"> { /* course num, title, instructor */ }
             <div className="col-md-2">
-              <TextInput className="form-control-sm" onChange={this.handleChange} id="course_num"  placeholder="course #" value={course.course_num} required />
+              <TextInput className="form-control-sm" onChange={this.handleChange} id="course_num"  placeholder="858-xxx" value={course.course_num} required />
             </div>
-            <div className="col-md-6">
+            <div className="col-md-4">
               <TextInput className="form-control-sm" onChange={this.handleChange} id="course_title" placeholder="title" value={course.course_title} required />
             </div>
-            <div className="col-md-3">
+            <div className="col-md-2">
               <TextInput className="form-control-sm" onChange={this.handleChange} id="instructor"  placeholder="instructor" value={course.instructor} />
             </div>
-            <div className="col-md-1">
-              <button className="btn btn-sm btn-primary" type="submit">S</button>
-              <button className="btn btn-sm btn-danger" type="button">X</button>
-            </div>
-          </div>
-
-          <div className="form-row"> { /* format, day/time, credits, required, buttons */ }
             <div className="col-md-2">
               <Select id="format" className="form-control-sm" options={formats} onChange={this.handleChange} value={course.format} />
             </div>
 
             <div className="col-md-2">
-              <Select id="format" onChange={this.handleChange} className="form-control-sm" options={days} selected={course.day} locationDisabled />
+              <button className="btn btn-sm btn-light" type="submit"><SaveIcon className="icon-primary" /></button>
+              {DelButton}
+            </div>
+          </div>
+
+          <div className={`form-row ${locationCss}`}> { /* schedule info */ }
+
+            <div className="col-md-2 offset-md-2">
+              <Select id="location" className="form-control-sm" options={locations} onChange={this.handleChange} value={course.location} />
             </div>
 
             <div className="col-md-2">
-              <TextInput className="form-control-sm" type="time" onChange={this.handleChange} id="start" placeholder="start" value={course.start} locationDisabled />
+              <Select id="format" onChange={this.handleChange} className="form-control-sm" options={days} selected={course.day}/>
+            </div>
+
+            <div className="col-md-2">
+              <TextInput className="form-control-sm" onChange={this.handleChange} id="start" placeholder="start" value={course.start} />
             </div>
             <div className="col-md-2">
-              <TextInput className="form-control-sm" type="time" onChange={this.handleChange} id="end" placeholder="start" value={course.end} locationDisabled />
+              <TextInput className="form-control-sm" onChange={this.handleChange} id="end" placeholder="start" value={course.end} />
             </div>
-            <div className="col-md-1">
-              <TextInput className="form-control-sm" onChange={this.handleChange} id="credits"
-                divolder="credits"
-                value={course.credits} type="number"
-                min="0" max="6" />
-            </div>
-            <div className="col-md-2 bg-light rounded">
-              <small><Checkbox className="p-0 mt-1" onChange={toggleRequired} id="required" label="required" /></small>
-            </div>
+
           </div>
         </form>
-        <hr />
       </div>
     )
   }
@@ -133,3 +133,4 @@ class CourseScheduleForm extends React.Component {
 
 
 export default CourseScheduleForm;
+export {ScheduledCourse};

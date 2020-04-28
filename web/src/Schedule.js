@@ -2,11 +2,13 @@ import React from "react";
 import _ from "lodash";
 // import {DateTime} from "luxon";
 import net from "./net.js";
-import { LoadingSpinner, StatusIndicator, StringToType } from "./ui/form-ui";
+import { StatusIndicator, StringToType } from "./ui/form-ui";
+import PageSpinner from "./ui/PageSpinner";
 import Toggle from "./ui/Toggle";
 import  * as dates from "./ui/dates.js";
 import {Online, International, CoursePlanningData} from "./CourseList";
-import CourseScheduleForm from "./CourseScheduleForm";
+import TermSchedule from "./TermSchedule";
+import {Schedule} from "./TermSchedule";
 
 
 class ScheduleScreen extends React.Component {
@@ -16,20 +18,24 @@ class ScheduleScreen extends React.Component {
           plans: [],
         courses: [],
       schedules: [],
-      students: {},
+      students: [],
           dirty: false,
         loading: true
     };
+    this.addSchedule = this.addSchedule.bind(this);
+
   }
 
   componentDidMount() {
     const store = ([plans, courses, schedules, students])=>  {
       courses = _.sortBy(courses.data, "course_num");
-      students = _.filter(students.data, s=>s.active && !s.graduated);
+      // students = _.filter(students.data, s=>s.active && !s.graduated);
+      // console.log("students", students.data);
 
       this.setState( {
         plans: plans.data,
         courses: courses,
+        students: students.data,
         schedules: schedules.data || [],
         loading: false
       });
@@ -44,170 +50,66 @@ class ScheduleScreen extends React.Component {
     Promise.all(promises).then(store);
   }
 
-  render() {
-    if (this.state.loading) {
-      return <LoadingSpinner loading />
-    }
-    let courses = this.state.courses;
+  addSchedule() {
     let schedules = this.state.schedules;
     schedules = _.reverse(_.sortBy(schedules, "term"));
-    let plans = this.state.plans;
-
-    const addSchedule = ()=> {
-      let term = dates.nextTerm();
-      if (schedules.length) {
-        term = dates.nextTerm(schedules[0].term);
-      }
-      schedules = _.concat(schedules, new Schedule(term));
-      this.setState({schedules: schedules});
+    console.log("adding schedule:", schedules);
+    let term = dates.nextTerm();
+    if (schedules.length) {
+      term = dates.nextTerm(schedules[0].term);
     }
 
-    console.log("schedules:", schedules);
-    const makeSchedule = (s, i) => {
-      return (
-        <ScheduleForm key={s.term} open={i === 0} schedule={s} courses={courses} plans={plans} />
-      )
-    }
+    let schedule = new Schedule(term);
 
-    return (
-
-
-      <div className="mt-2 mb-2">
-        <div className="d-flex">
-          <h5 className="pb-0 mb-0">course scheduling</h5>
-          <button className="btn btn-sm btn-primary ml-2 pt-0 pb-0" onClick={addSchedule}>add term</button>
-        </div>
-        { _.map(schedules, makeSchedule)  }
-
-      </div>
-    )
-  }
-}
-
-
-// function CourseList (props) {
-//   const schedule = props.schedule;
-//   let planned = _.filter(props.reg, r=>r.term === schedule.term);
-//   let total = planned.length;
-//   // let aui =
-//   const CourseList = _.map(planned, (c,i)=><CourseItem course={c} i={String(i)} />)
-//
-//   return (
-//     <div className="PlannedCourses">
-//       {CourseList}
-//     </div>
-//   )
-// }
-//
-// function CourseSymbol (props) {
-//   if (props.course.required) {
-//     return (<span className="RequiredCourse text-primary pl-1 pr-1">✓</span>);
-//   }
-//   return (<span className="ElectiveCourse text-success pl-1 pr-1">★</span>);
-// }
-//
-// function CourseItem(course, i)  {
-//   let css = "";
-//   return (
-//     <div key={i} className={`CourseItem list-group-item ${css}`} data-course_num={course.course_num}>
-//       <span className="pl-2 pt-1">{course.course_num} {course.course_title}</span>
-//       <CourseSymbol course={course} /> ({course.credits})
-//     </div>
-//   )
-// }
-
-function Schedule(term) {
-  return {
-    _id: null,
-    term: term,
-    courses: []
-  }
-}
-
-class ScheduleForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      schedule: props.schedule,
-      loading: false,
-      dirty: false
-    };
-    this.handleChange = this.handleChange.bind(this);
-    this.save = this.save.bind(this);
-    this.saveCourse = this.saveCourse.bind(this);
-  }
-
-  save() {
-    let schedule = this.state.schedule;
-
-    const url = "/api/schedules/";
-    const saved = ()=> {
-      this.setState({dirty: false, loading: false});
+    const saved = (response)=> {
+      console.log("schedule posted:", response);
+      schedule._id = response.data.insertedId;
+      schedules = _.concat(schedules, schedule);
+      // this.setState({schedules: schedules, loading: false});
+      this.setState({schedules: schedules, loading: false});
     }
     const err = (e) => {
-      console.log("failed to save schedule:", e);
+      console.log("failed to add new schedule:", e);
       this.setState({loading: false, error: "Failed to save changes. " + e.stack});
     }
     this.setState({ loading: true });
 
     console.log("saving schedule:", schedule);
-    if (schedule._id) {
-      net.put(url + schedule._id, schedule).then(saved).catch(err);
-    }
-    else {
-      net.post(url, schedule).then(saved).catch(err);
-    }
+    const url = "/api/schedules/";
+    net.post(url, schedule).then(saved).catch(err);
   }
 
-  saveCourse(course) {
-    let schedule = this.state.schedule;
-    let courses = schedule.courses;
-    let i = _.findIndex(courses, c=>c.course_num === course.course_num);
-    if (i === -1) {
-      courses = _.concat(courses, course);
-    }
-    else {
-      courses[i] = course;
-    }
-    console.log("Saving courses:", courses);
-    schedule.courses = courses;
-    this.setState({schedule: schedule, dirty: true});
-    this.save();
-  }
-
-  handleChange(e) {
-    e.preventDefault();
-    let schedule = this.state.schedule;
-    let key = e.target.name || e.target.id;
-    schedule[key] = StringToType(e.target.value);
-    this.setState({ schedule: schedule, dirty: true });
-    this.save()
-  }
 
   render() {
-    const schedule = this.state.schedule;
+    if (this.state.loading) {
+      return (
+        <PageSpinner msg="loading scheduling data" loading />
+      )
+    }
 
-    const Title = (
-      <div className="d-flex justify-content-between flex-fill ">
-        <strong>{dates.termName(schedule.term)}</strong>
-        <StatusIndicator loading={this.state.loading}
-          dirty={this.state.dirty}
-          className="pr-3" />
-      </div>
-    );
+    let courses = this.state.courses;
+    let schedules = this.state.schedules;
+    schedules = _.reverse(_.sortBy(schedules, "term"));
 
-    const show = this.props.open === true;
-    const courses = _.map(schedule.courses, c=><CourseScheduleForm key={c.course_num} save={this.saveCourse} course={c}/>);
+    let plans = this.state.plans;
+
+    const makeSchedule = (s, i) => {
+      return (
+        <TermSchedule key={s.term} open={i === 0} students={this.state.students} schedule={s} courses={courses} plans={plans} />
+      )
+    }
+
     return (
-      <Toggle key={schedule.term} debug={schedule.term} css="card mb-2 toggle-card-header"
-        title={Title} open={show}>
-        <div className="card-body">
-          <CourseScheduleForm className="bg-dark p-2 rounded" key="new" save={this.saveCourse} empty/>
-          {courses}
-        </div>
-      </Toggle>
 
-    );
+      <div className="mt-2 mb-2">
+        <div className="d-flex">
+          <h5 className="pb-0 mb-0">course scheduling</h5>
+          <button className="btn btn-sm btn-primary ml-2 pt-0 pb-0" onClick={this.addSchedule}>add term</button>
+        </div>
+        { _.map(schedules, makeSchedule)  }
+
+      </div>
+    )
   }
 }
 

@@ -40,10 +40,10 @@ const getFromCache = async (method, url) => {
   }
 
   let item = await lf.getItem(url);
-  // console.log("cache item", item);
   if (!item) {
     return null;
   }
+  // console.log("loaded cached item", url, item);
   const now = new Date().getTime();
   const delta = now - Number(item.ts);
   if (delta > maxStale) {
@@ -93,8 +93,10 @@ const doFetch = async (method, url, data) => {
 
   const promiseToReadResponse = (resolve, reject)=> {
     const handleResponse = (r) => {
-
       const handleJson = (json)=> {
+        if (method !== "GET") {
+          json = json.data;
+        }
         const msg = {
           "data": json,
           "status": r.status

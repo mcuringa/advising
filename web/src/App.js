@@ -69,7 +69,7 @@ class SecureRoutes  extends React.Component {
             <PropsRoute exact path="/" component={Home} />
             <PropsRoute path="/sign-in" component={SignIn} />
             <PropsRoute path="/login" component={Authenticate} />
-            <PropsRoute exact path="/scheduling" component={ScheduleScreen} />
+            <PropsRoute exact path="/courses/scheduling" component={ScheduleScreen} />
             <PropsRoute exact path="/courses" component={CourseScreen} />
             <PropsRoute exact path="/courses/new" component={CourseForm} />
             <PropsRoute path="/courses/:id" component={CourseForm} />
@@ -156,15 +156,15 @@ function Footer (props) {
 
 function SubNav (props) {
 
+  const courseLinks = [
+    <NavLink key="list" className="nav-link pt-0 pb-0 text-brown" to="/courses">list</NavLink>,
+    <NavLink key="sched" className="nav-link pt-0 pb-0 text-brown" to="/courses/scheduling">scheduling</NavLink>,
+    <NavLink key="new" className="nav-link pt-0 pb-0 text-brown" to="/courses/new">new</NavLink>
+  ];
   return (
     <div className="SubNav d-flex bg-white">
       <Switch>
-        <Route path="/courses">
-          <Link className="nav-link pt-0 pb-0 text-brown" to="/courses">list</Link>
-          <Link className="nav-link pt-0 pb-0 text-brown" to="/scheduling">scheduling</Link>
-          <Link className="nav-link pt-0 pb-0 text-brown" to="/courses/new">new</Link>
-
-        </Route>
+        <Route path="/courses">{courseLinks}</Route>
         <Route path="/students">
           <NavLink className="nav-link pt-0 pb-0 text-brown" to="/students">list</NavLink>
           <NavLink className="nav-link pt-0 pb-0 text-brown" to="/students/new">new</NavLink>
