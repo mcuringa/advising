@@ -116,16 +116,23 @@ function Network (props) {
 function OnlineStudentIcon (props) {
   let s = props.student;
   if (!s.online) {
-    return null;
+    return props.alt || null;
   }
   return Network();
 
 }
 
+function ActiveStudentIcon (props) {
+  if (props.student.active) {
+    return <Person className="icon-primary" />
+  }
+  return <Person className="icon-secondary" />
+}
+
 function AUIStudentIcon (props) {
   let s = props.student;
   if (!s.aui) {
-    return null;
+    return props.alt || null;
   }
   return Globe();
 
@@ -142,5 +149,6 @@ export {
   PlusSquareFill,
   UNFlag,
   AUIStudentIcon,
+  ActiveStudentIcon,
   OnlineStudentIcon
 };

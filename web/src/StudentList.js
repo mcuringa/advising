@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 import net from "./net.js";
 import SortableTable from "./ui/SortableTable";
 import { StatusIndicator } from "./ui/form-ui";
+import PageSpinner from "./ui/PageSpinner";
+import { AUIStudentIcon, OnlineStudentIcon, ActiveStudentIcon } from "./ui/icons";
+
 
 class StudentsScreen extends React.Component {
   constructor(props) {
@@ -11,6 +14,7 @@ class StudentsScreen extends React.Component {
 
     this.state = {
       students: [],
+      pageLoading: true,
       loading: true,
       dirty: false,
       allStudents: false
@@ -37,12 +41,16 @@ class StudentsScreen extends React.Component {
     const loadStudents = (response)=> {
       let data = response.data;
       console.log(data);
-      this.setState({ students: data, loading: false });
+      this.setState({ students: data, loading: false, pageLoading: false });
     }
     net.get(url).then(loadStudents);
   }
 
   render() {
+
+    if (this.state.pageLoading) {
+      return <PageSpinner loading msg="Loading student data" />
+    }
     const headers = [
       ["id", "student_id"],
       ["first", "first"],
@@ -57,10 +65,10 @@ class StudentsScreen extends React.Component {
     const mapValues = (key, s)=> {
       let values = {};
       values["student_id"] = (<Link to={`/students/${s._id}`}>{s.student_id}</Link>)
-      values["active"] = (<TSB student={s} field="active" icon={(s.active)?"🙂" : "😴"} />);
+      values["active"] = (<TSB student={s} field="active" icon={<ActiveStudentIcon student={s}/>} />);
       values["graduated"] = (<TSB student={s} field="graduated" icon={(s.graduated)?"🎓" : "–"} />);
-      values["aui"] = (<TSB student={s} field="aui" icon={(s.aui)?"🇺🇳" : "–"} />);
-      values["online"] = (<TSB student={s} field="online" icon={(s.online)?"📡" : "–"} />);
+      values["aui"] = (<TSB student={s} field="aui" icon={<AUIStudentIcon alt="–" student={s}/>} />);
+      values["online"] = (<TSB student={s} field="online" icon={<OnlineStudentIcon alt="–" student={s}/>} />);
 
       return values[key] || s[key];
 
@@ -76,7 +84,7 @@ class StudentsScreen extends React.Component {
         s[field] = !s[field];
         this.save(s);
       };
-      return (<button className="p-0 m-0 btn btn-link" onClick={f}>{icon}</button>);
+      return (<button className="p-0 m-0 btn btn-plain" onClick={f}>{icon}</button>);
     }
 
     let students = _.sortBy(this.state.students, "first");

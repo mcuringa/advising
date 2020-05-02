@@ -7,7 +7,7 @@ import  * as dates from "./ui/dates.js";
 import net from "./net.js";
 import { LoadingSpinner } from "./ui/form-ui";
 import "./Drag.css";
-
+import {DateTime} from "luxon";
 
 class Plan extends React.Component {
   constructor(props) {
@@ -150,19 +150,21 @@ class Plan extends React.Component {
     let courses = this.state.courses;
     let terms = addNextTerms(this.state.plan, 5);
     courses = _.filter(courses, c=>!_.includes(plannedCourses, c.course_num));
+    const modified = DateTime.fromISO(this.state.plan.modified).toRelative();
 
     return (
 
       <div className="row">
         <div className="col-md-6">
-          <div className="d-flex">
-            <h5 className="pb-0 mb-0">plan of study</h5>
+          <div className="d-flex align-items-center border-bottom">
+            <h5 className="pb-0 mb-1">plan of study</h5>
+            <small className="text-muted d-block ml-1">modified: {modified}</small>
           </div>
           <PlanHeader electives={this.state.electives} required={this.state.required} />
           <PlanOfStudy courses={this.state.plan.courses} terms={terms} />
         </div>
         <div className="col-md-6">
-          <h4>courses</h4>
+          <h5 className="border-bottom pb-1">courses</h5>
           <CourseList courses={courses} />
         </div>
       </div>

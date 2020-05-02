@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { DateTime as dt } from "luxon";
 import net from "./net.js";
 import Toggle from "./ui/Toggle";
+import PageSpinner from "./ui/PageSpinner";
 
 class CourseScreen extends React.Component {
   constructor(props) {
@@ -46,6 +47,9 @@ class CourseScreen extends React.Component {
 
 
   render() {
+    if (this.state.loading) {
+      return <PageSpinner loading msg="Loading course data" />
+    }
     const detail = c=><CourseDetail key={c._id} course={c} students={this.state.students} plans={this.state.plans} />
     const required = _.map(this.state.requiredCourses, detail);
     const electives = _.map(this.state.electives, detail);
