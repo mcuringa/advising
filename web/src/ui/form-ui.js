@@ -137,6 +137,7 @@ const TextInput = (props)=> {
     <input type={props.type||'text'}
            value={props.value}
            className={`form-control${pt} ${css} ${validationCss}`}
+           name={props.name}
            id={props.id}
            min={props.min}
            max={props.max}

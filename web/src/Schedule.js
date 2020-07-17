@@ -2,11 +2,9 @@ import React from "react";
 import _ from "lodash";
 // import {DateTime} from "luxon";
 import net from "./net.js";
-import { StatusIndicator, StringToType } from "./ui/form-ui";
 import PageSpinner from "./ui/PageSpinner";
-import Toggle from "./ui/Toggle";
 import  * as dates from "./ui/dates.js";
-import {Online, International, CoursePlanningData} from "./CourseList";
+// import {Online, International, CoursePlanningData} from "./CourseList";
 import TermSchedule from "./TermSchedule";
 import {Schedule} from "./TermSchedule";
 

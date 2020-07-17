@@ -2,7 +2,7 @@ import React from "react";
 import _ from "lodash";
 // import {DateTime} from "luxon";
 import net from "./net.js";
-import { LoadingSpinner, StatusIndicator, StringToType } from "./ui/form-ui";
+import { StatusIndicator, StringToType } from "./ui/form-ui";
 import Toggle from "./ui/Toggle";
 import  * as dates from "./ui/dates.js";
 import CourseScheduleForm,  {ScheduledCourse} from "./CourseScheduleForm";
@@ -111,6 +111,7 @@ class TermSchedule extends React.Component {
       clone.course_id = null;
       const del = ()=> { this.deleteCourse(c) };
       return (<CourseScheduleForm
+                allCourses={this.props.courses}
                 key={c.course_id} course={c}
                 className="bg-light rounded p-1 pb-0 mb-1"
                 save={this.saveCourse}
@@ -138,10 +139,10 @@ function PlannedCourses (props) {
   // console.log("student db:", students);
   const term = props.term;
   const plans = props.plans;
-  const pf = (p)=> {
-    return _.findIndex(p.courses, c=>c.term === term) !== -1;
-  }
-  const plansThisTerm = _.filter(plans, pf);
+  // const pf = (p)=> {
+  //   return _.findIndex(p.courses, c=>c.term === term) !== -1;
+  // }
+  // const plansThisTerm = _.filter(plans, pf);
   // console.log("plans this term:", term, plansThisTerm);
 
   const plansToCourses = (t, p)=> {

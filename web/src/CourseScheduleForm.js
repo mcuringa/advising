@@ -1,5 +1,6 @@
 import React from "react";
 import _ from "lodash";
+import AutoComplete from "./ui/AutoComplete.js";
 
 import {
   TextInput,
@@ -29,6 +30,7 @@ function ScheduledCourse() {
 class CourseScheduleForm extends React.Component {
   constructor(props) {
     super(props);
+    console.log("all courses:", props.allCourses);
     const blank = new ScheduledCourse();
     this.state = {
       course: _.merge(blank, props.course) || blank,
@@ -41,7 +43,9 @@ class CourseScheduleForm extends React.Component {
   }
 
   handleChange(e) {
-    e.preventDefault();
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
     let course = this.state.course;
     let key = e.target.name || e.target.id;
     if (key === "format" && e.target.value === "online") {
@@ -94,9 +98,7 @@ class CourseScheduleForm extends React.Component {
             <div className="col-md-4">
               <TextInput className="form-control-sm" onChange={this.handleChange} id="course_title" placeholder="title" value={course.course_title} required />
             </div>
-            <div className="col-md-2">
-              <TextInput className="form-control-sm" onChange={this.handleChange} id="instructor"  placeholder="instructor" value={course.instructor} />
-            </div>
+            <Instructors onChange={this.handleChange} instructor={course.instructor} />
             <div className="col-md-2">
               <Select id="format" className="form-control-sm" options={formats} onChange={this.handleChange} value={course.format} />
             </div>
@@ -110,18 +112,18 @@ class CourseScheduleForm extends React.Component {
           <div className={`form-row ${locationCss}`}> { /* schedule info */ }
 
             <div className="col-md-2 offset-md-2">
-              <Select id="location" className="form-control-sm" options={locations} onChange={this.handleChange} value={course.location} />
+              <Select id="location" className="form-control-sm text-primary" options={locations} onChange={this.handleChange} value={course.location} />
             </div>
 
             <div className="col-md-2">
-              <Select id="format" onChange={this.handleChange} className="form-control-sm" options={days} selected={course.day}/>
+              <Select id="format" onChange={this.handleChange} className="form-control-sm text-primary" options={days} selected={course.day}/>
             </div>
 
             <div className="col-md-2">
-              <TextInput className="form-control-sm" onChange={this.handleChange} id="start" placeholder="start" value={course.start} />
+              <TextInput className="form-control-sm text-primary" onChange={this.handleChange} id="start" placeholder="start" value={course.start} />
             </div>
             <div className="col-md-2">
-              <TextInput className="form-control-sm" onChange={this.handleChange} id="end" placeholder="start" value={course.end} />
+              <TextInput className="form-control-sm text-primary" onChange={this.handleChange} id="end" placeholder="start" value={course.end} />
             </div>
 
           </div>
@@ -131,6 +133,91 @@ class CourseScheduleForm extends React.Component {
   }
 }
 
+
+function Courses (props) {
+  const instructors = [
+    "Aaron Hung",
+    "Matt Curinga",
+    "Elizabeth de Freitas",
+    "Tom Jennings",
+    "Ryan Sobeck",
+    "Kai Williams",
+    "Christian Correa",
+    "Robby Lucia",
+    "Nicholas"
+  ];
+
+  // const startsWith = (a, b)=>a.toLowerCase().startsWith(b.toLowerCase());
+  //
+  // const renderF = (item, value) => {
+  //   if (value.length === 0) {
+  //     return true;
+  //   }
+  //   if (value.length === 1 && item.starts) {
+  //     return startsWith(item.label, value);
+  //   }
+  //   return item.label.toLowerCase().indexOf(value.toLowerCase()) > -1;
+  // }
+
+
+  // <TextInput className="form-control-sm" onChange={props.onChange} id="instructor"  placeholder="instructor" value={props.instructor} />
+
+  return (
+    <div className="col-md-2">
+      <AutoComplete
+        id="instructor"
+        items={instructors}
+        value={props.instructor}
+        onChange={props.onChange}
+      />
+    </div>
+  )
+
+
+}
+
+
+function Instructors (props) {
+  const instructors = [
+    "Aaron Hung",
+    "Matt Curinga",
+    "Elizabeth de Freitas",
+    "Tom Jennings",
+    "Ryan Sobeck",
+    "Kai Williams",
+    "Christian Correa",
+    "Robby Lucia",
+    "Nicholas"
+  ];
+
+  // const startsWith = (a, b)=>a.toLowerCase().startsWith(b.toLowerCase());
+  //
+  // const renderF = (item, value) => {
+  //   if (value.length === 0) {
+  //     return true;
+  //   }
+  //   if (value.length === 1 && item.starts) {
+  //     return startsWith(item.label, value);
+  //   }
+  //   return item.label.toLowerCase().indexOf(value.toLowerCase()) > -1;
+  // }
+
+
+  // <TextInput className="form-control-sm" onChange={props.onChange} id="instructor"  placeholder="instructor" value={props.instructor} />
+
+  return (
+    <div className="col-md-2">
+      <AutoComplete
+        id="instructor"
+        items={instructors}
+        value={props.instructor}
+        onChange={props.onChange}
+      />
+    </div>
+  )
+
+
+}
 
 export default CourseScheduleForm;
 export {ScheduledCourse};

@@ -1,6 +1,6 @@
 import React from "react";
 import net from "./net.js";
-import { StatusIndicator, TextInput, Checkbox, LoadingSpinner } from "./ui/form-ui";
+import { StatusIndicator, TextInput, Checkbox } from "./ui/form-ui";
 import PageSpinner from "./ui/PageSpinner";
 import Toggle from "./ui/Toggle";
 import Plan from "./Plan";
