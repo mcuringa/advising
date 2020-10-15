@@ -48,6 +48,8 @@ class CourseScheduleForm extends React.Component {
     }
     let course = this.state.course;
     let key = e.target.name || e.target.id;
+    console.log("change made to:", key);
+
     if (key === "format" && e.target.value === "online") {
       course.location = "online";
     }
@@ -159,17 +161,17 @@ function Courses (props) {
   //   return item.label.toLowerCase().indexOf(value.toLowerCase()) > -1;
   // }
 
+  //     <AutoComplete
+  //       id="instructor"
+  //       items={instructors}
+  //       value={props.instructor}
+  //       onChange={props.onChange}
+  //     />
 
-  // <TextInput className="form-control-sm" onChange={props.onChange} id="instructor"  placeholder="instructor" value={props.instructor} />
 
   return (
     <div className="col-md-2">
-      <AutoComplete
-        id="instructor"
-        items={instructors}
-        value={props.instructor}
-        onChange={props.onChange}
-      />
+      <TextInput className="form-control-sm" onChange={props.onChange} id="instructor"  placeholder="instructor" value={props.instructor} />
     </div>
   )
 
@@ -203,16 +205,16 @@ function Instructors (props) {
   // }
 
 
-  // <TextInput className="form-control-sm" onChange={props.onChange} id="instructor"  placeholder="instructor" value={props.instructor} />
+  //     <AutoComplete
+  //       id="instructor"
+  //       items={instructors}
+  //       value={props.instructor}
+  //       onChange={props.onChange}
+  //     />
 
   return (
     <div className="col-md-2">
-      <AutoComplete
-        id="instructor"
-        items={instructors}
-        value={props.instructor}
-        onChange={props.onChange}
-      />
+        <TextInput className="form-control-sm" onChange={props.onChange} id="instructor"  placeholder="instructor" value={props.instructor} />
     </div>
   )
 
