@@ -4,14 +4,47 @@ import { StatusIndicator, TextInput, Checkbox } from "./ui/form-ui";
 import PageSpinner from "./ui/PageSpinner";
 import Toggle from "./ui/Toggle";
 import Plan from "./Plan";
+import classNames from "classnames";
+import _ from "lodash";
+
+
+function StudentPlan(s) {
+  const fields = [
+    "student_id",
+    "last",
+    "major",
+    "first",
+    "email"
+  ]
+  let plan = _.pick(s, fields);
+  plan.courses = [];
+  return plan
+}
+
+
+function Student() {
+  return {
+    _id: null,
+    student_id: null,
+    first: "",
+    last: "",
+    email: "",
+    major: "EDX",
+    aui: false,
+    last_registered: "",
+    online: true,
+    graduated: false,
+    active: true
+  }
+}
 
 class StudentDetail extends React.Component {
   constructor(props) {
     super(props);
     this.id = props.match.params.id;
     this.state = {
-      "student": {},
-      "loading": true
+      "student": new Student(),
+      "loading": this.id
       };
   }
 
@@ -26,8 +59,13 @@ class StudentDetail extends React.Component {
     }
     // load the data
     const studUrl = "/api/students/" + this.id;
-    console.log("getting student", studUrl);
-    net.get(studUrl).then(loadStudent);
+    if (this.id){
+      console.log("getting student", studUrl);
+      net.get(studUrl).then(loadStudent);
+    }
+    else {
+      console.log("new student")
+    }
 
   }
 
@@ -46,7 +84,7 @@ class StudentDetail extends React.Component {
 
       <section className="StudentDetail mt-3">
         <div className="mb-2">
-          <Toggle css="card toggle-card-header" open={false}
+          <Toggle css="card toggle-card-header" open={!student._id}
               title={title}>
 
             <div className="card-body">
@@ -82,15 +120,32 @@ class StudentForm extends React.Component {
     if(student.graduated) {
       student.active = false;
     }
-    const url = "/api/students/" + student._id;
+
     const saved = ()=> {
       this.setState({dirty: false, loading: false});
     }
     this.setState({ loading: true });
-    net.put(url, student).then(saved).catch((e)=>{
-      console.log("failed to save student:", e);
-      this.setState({loading: false, error: "Failed to save changes. " + e.stack});
-    });
+    if (student._id){
+      const url = "/api/students/" + student._id;
+      net.put(url, student).then(saved).catch((e)=>{
+        console.log("failed to save student:", e);
+        this.setState({loading: false, error: "Failed to save changes. " + e.stack});
+      });
+    }
+    else {
+      // new student
+
+      let plan = new StudentPlan(student)
+      let sUrl = "/api/students/";
+      let pUrl = "/api/plans/";
+      const err = (e)=> {
+        this.setState({loading: false, error: "Failed to create student. " + e.stack});
+      }
+      let sp = net.post(sUrl, student).then(saved).catch(e);
+      let pp = net.post(pUrl, plan).then(saved).catch(e);
+
+
+    }
   }
 
   handleChange(e) {
@@ -103,6 +158,11 @@ class StudentForm extends React.Component {
 
   render () {
     let student = this.state.student;
+    let linkCss = classNames("pl-2", {"text-secondary": !student.student_id})
+    let emailInputCss = classNames("col-md-6", {"d-none":!student.student_id})
+    let emailLinkCss = classNames("col-md-6", {"d-none":student.student_id})
+
+
     const CLASS = "https://class.adelphi.edu/cgi-bin/web.asp?web=ADVISEE.INQ&STUDID=" + student.student_id;
     const slate = "https://connect.adelphi.edu/manage/lookup/search?q=" + student.first + "+" + student.last;
     const degree = "https://studentweb.adelphi.edu/selfservice-batch/audit/create.html?searchType=stuno&stuno=" + student.student_id;
@@ -152,18 +212,38 @@ class StudentForm extends React.Component {
           <div className="col-md-3 text-right font-weight-bold">
             student id
           </div>
-          <div className="col-md-6">
-            {student.student_id}
-            <a className="pl-2" href={CLASS} title="open in CLASS">[CLASS]</a>
-            <a className="pl-2" href={slate} title="open in Slate">[Slate]</a>
-            <a className="pl-2" href={degree} title="open in degree audit">[Degree Audit]</a>
+          <div className="col-md-3">
+            <TextInput
+              id="student_id"
+              required
+              validationErrorMsg="must enter a student id"
+              validationPassedMsg="looks good"
+              placeholder=""
+              value={student.student_id}
+              plaintext={student.student_id}
+              onChange={this.handleChange} />
+            </div>
+            <div className="col-md-3">
+            <a className={linkCss} href={CLASS} title="open in CLASS">[CLASS]</a>
+            <a className={linkCss} href={slate} title="open in Slate">[Slate]</a>
+            <a className={linkCss} href={degree} title="open in degree audit">[Degree Audit]</a>
           </div>
         </div>
         <div className="row mb-2">
           <div className="col-md-3 text-right font-weight-bold">
             email
           </div>
-          <div className="col-md-6">
+          <div className={emailInputCss}>
+            <TextInput
+              id="email"
+              required
+              validationErrorMsg="new students need email"
+              validationPassedMsg="looks good"
+              placeholder=""
+              value={student.email}
+              onChange={this.handleChange} />
+          </div>
+          <div className={emailLinkCss}>
             <a href={`mailto:${student.email}`} title="send an email"><span role="img" aria-label="email">📧</span> {student.email}</a>
           </div>
         </div>

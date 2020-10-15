@@ -9,12 +9,29 @@ import { LoadingSpinner } from "./ui/form-ui";
 import "./Drag.css";
 import {DateTime} from "luxon";
 
+
+function StudentPlan(s) {
+  const fields = [
+    "student_id",
+    "last",
+    "major",
+    "first",
+    "email"
+  ]
+  let plan = _.pick(s, fields);
+  plan.courses = [];
+  return plan
+}
+
+
+
 class Plan extends React.Component {
   constructor(props) {
     super(props);
+    let plan = new StudentPlan(this.props.student);
     this.state = {
-         plan: {},
-      courses: [],
+         plan: plan,
+      courses: plan.courses,
         dirty: false,
       loading: true,
       electives: [],
@@ -26,6 +43,9 @@ class Plan extends React.Component {
   }
 
   componentDidMount() {
+    if (!this.props.student_id) {
+      return;
+    }
     const store = ([plans, courses])=>  {
       console.log("got plan", plans.data[0]);
       courses = _.sortBy(courses.data, "course_num");
@@ -143,6 +163,10 @@ class Plan extends React.Component {
   }
 
   render() {
+    if (!this.props.student_id) {
+      return null;
+    }
+
     if (this.state.loading) {
       return <LoadingSpinner loading />
     }
