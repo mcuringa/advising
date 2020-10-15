@@ -109,7 +109,7 @@ function Globe (props) {
 }
 
 function Network (props) {
-  return <span className="pl-1 pr-1" role="img" aria-label="computer network">🖧</span>;
+  return <span className="pl-1 pr-1" role="img" aria-label="computer network">📡</span>;
 }
 
 
