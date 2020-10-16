@@ -115,7 +115,40 @@ const ValidMsg = (props)=>{
   )
 }
 
+
+const ComboBox = (props)=> {
+  let {items, selectItem, ...textProps} = props;
+
+  const Item = (item)=> {
+    let val = item.label || item;
+    const f = ()=>{ props.selectItem(item) }
+    return (
+      <button key={val} className="dropdown-item" onClick={f} type="button">{val}</button>
+    )
+  }
+
+  const suggestions = _.map(items, Item)
+
+
+  return (
+    <div className="input-group mb-3">
+      <TextInput className="form-control-sm" {...props} />
+      <div className="input-group-append">
+        <div className="btn-group">
+          <button type="button" className="btn btn-primary dropdown-toggle dropdown-toggle-split p-0 pl-1 pr-1 rounded-0 rounded-top-right rounded-bottom-right m-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span className="sr-only">Toggle Dropdown</span>
+          </button>
+          <div className="dropdown-menu dropdown-menu-right">{suggestions}</div>
+        </div>
+      </div>
+    </div>
+  )
+
+}
+
 const TextInput = (props)=> {
+
+  // console.log("text input props", props);
 
   if(props.hide) {
     return null;
@@ -127,9 +160,6 @@ const TextInput = (props)=> {
   const pt = (props.plaintext && props.readOnly)?"-plaintext":"";
   const validationCss = props.validationCss || "";
   let css = props.className || "";
-  if (props.plaintext) {
-    css += " align-top";
-  }
 
   const required = StringToType(props.required) === true;
   return (
@@ -287,6 +317,7 @@ export {
   RadioButtonGroup,
   TextGroup,
   TextInput,
+  ComboBox,
   TextAreaGroup,
   Label,
   ValidMsg,
