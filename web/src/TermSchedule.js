@@ -112,20 +112,21 @@ class TermSchedule extends React.Component {
       const del = ()=> { this.deleteCourse(c) };
       return (<CourseScheduleForm
                 allCourses={this.props.courses}
-                key={c.course_id} course={c}
+                key={_.uniqueId("csf_")}
+                course={c}
                 className="bg-light rounded p-1 pb-0 mb-1"
                 save={this.saveCourse}
                 delete={del} />)
     }
     const courses = _.map(schedule.courses, cf);
     return (
-      <Toggle key={schedule.term} debug={schedule.term} css="card toggle-card-header"
+      <Toggle key={_.uniqueId("tsf_")} debug={schedule.term} css="card toggle-card-header"
         title={Title} open={show}>
         <div className="card-body">
           <Toggle title="Planned Courses" open>
             <PlannedCourses term={schedule.term} plans={this.props.plans} saveCourse={this.saveCourse} students={this.props.students} />
           </Toggle>
-          <CourseScheduleForm className="bg-secondary p-1 rounded mb-1" key="new" save={this.saveCourse} empty/>
+          <CourseScheduleForm allCourses={this.props.courses} className="bg-secondary p-1 rounded mb-1" key={_.uniqueId("newcourse_")} save={this.saveCourse} empty/>
           {courses}
         </div>
       </Toggle>
@@ -191,7 +192,7 @@ function PlannedCourses (props) {
   courseData = _.sortBy(_.values(courseData), "course_num");
   // console.log("reduced course students:", courseData[0].students);
 
-  const PlannedCourseList = _.map(courseData, c=><PlannedCourse key={c.course_num} course={c} />);
+  const PlannedCourseList = _.map(courseData, c=><PlannedCourse key={_.uniqueId("pcl_")} course={c} />);
   return (
     <ul className="list-group">{PlannedCourseList}</ul>
   )
@@ -212,7 +213,7 @@ function PlannedCourse (props) {
   return (
     <li className="list-group-item p-0">
       <Toggle title={title(course)} plain>
-          {_.map(students, s=><div className="pl-4" key={s.student_id}><small>{s.first} {s.last} <AUIStudentIcon student={s} /> <OnlineStudentIcon student={s} /></small></div>)}
+          {_.map(students, s=><div className="pl-4" key={_.uniqueId("stuplan_")}><small>{s.first} {s.last} <AUIStudentIcon student={s} /> <OnlineStudentIcon student={s} /></small></div>)}
       </Toggle>
     </li>
   )
