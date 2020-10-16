@@ -1,8 +1,8 @@
 import React from "react";
 import _ from "lodash";
-import AutoComplete from "./ui/AutoComplete.js";
 
 import {
+  ComboBox,
   TextInput,
   Select,
   StringToType
@@ -30,7 +30,7 @@ function ScheduledCourse() {
 class CourseScheduleForm extends React.Component {
   constructor(props) {
     super(props);
-    console.log("all courses:", props.allCourses);
+    // console.log("all courses:", props.allCourses);
     const blank = new ScheduledCourse();
     this.state = {
       course: _.merge(blank, props.course) || blank,
@@ -39,6 +39,7 @@ class CourseScheduleForm extends React.Component {
     };
     this.onSubmit = this.onSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.makeCourseControl = this.makeCourseControl.bind(this);
     this.save = _.debounce(this.props.save, 300);
   }
 
@@ -70,6 +71,36 @@ class CourseScheduleForm extends React.Component {
     this.props.save(course);
   }
 
+  makeCourseControl() {
+    let course = this.state.course;
+
+    const selectItem = (item)=> {
+      // console.log("calling select item");
+      course.course_num = item.course_num;
+      course.course_title = item.course_title;
+      this.setState({ course: course, dirty: true });
+      if(course.course_id) {
+        this.save(course);
+      }
+    }
+
+    const items = _.map(this.props.allCourses,c=>_.merge(c, {label:c.course_num + " " + c.course_title}));
+
+    return (
+      <ComboBox
+        id="course_num"
+        value={course.course_num}
+        placeholder="858-xxx"
+        items={items}
+        selectItem={selectItem}
+        className="form-control-sm"
+        onChange={this.handleChange}
+        required />
+    )
+
+  }
+
+
   render() {
 
     const course = this.state.course;
@@ -94,13 +125,13 @@ class CourseScheduleForm extends React.Component {
         <form className="CourseForm" onSubmit={this.onSubmit}>
 
           <div className="form-row mb-1"> { /* course num, title, instructor */ }
-            <div className="col-md-2">
-              <TextInput className="form-control-sm" onChange={this.handleChange} id="course_num"  placeholder="858-xxx" value={course.course_num} required />
-            </div>
+            <div className="col-md-2">{this.makeCourseControl()}</div>
             <div className="col-md-4">
               <TextInput className="form-control-sm" onChange={this.handleChange} id="course_title" placeholder="title" value={course.course_title} required />
             </div>
-            <Instructors onChange={this.handleChange} instructor={course.instructor} />
+            <div className="col-md-2">
+              <Instructors onChange={this.handleChange} instructor={course.instructor} />
+            </div>
             <div className="col-md-2">
               <Select id="format" className="form-control-sm" options={formats} onChange={this.handleChange} value={course.format} />
             </div>
@@ -136,61 +167,7 @@ class CourseScheduleForm extends React.Component {
 }
 
 
-function Courses (props) {
-  const instructors = [
-    "Aaron Hung",
-    "Matt Curinga",
-    "Elizabeth de Freitas",
-    "Tom Jennings",
-    "Ryan Sobeck",
-    "Kai Williams",
-    "Christian Correa",
-    "Robby Lucia",
-    "Nicholas"
-  ];
-
-  // const startsWith = (a, b)=>a.toLowerCase().startsWith(b.toLowerCase());
-  //
-  // const renderF = (item, value) => {
-  //   if (value.length === 0) {
-  //     return true;
-  //   }
-  //   if (value.length === 1 && item.starts) {
-  //     return startsWith(item.label, value);
-  //   }
-  //   return item.label.toLowerCase().indexOf(value.toLowerCase()) > -1;
-  // }
-
-  //     <AutoComplete
-  //       id="instructor"
-  //       items={instructors}
-  //       value={props.instructor}
-  //       onChange={props.onChange}
-  //     />
-
-
-  return (
-    <div className="col-md-2">
-      <TextInput className="form-control-sm" onChange={props.onChange} id="instructor"  placeholder="instructor" value={props.instructor} />
-    </div>
-  )
-
-
-}
-
-
 function Instructors (props) {
-  const instructors = [
-    "Aaron Hung",
-    "Matt Curinga",
-    "Elizabeth de Freitas",
-    "Tom Jennings",
-    "Ryan Sobeck",
-    "Kai Williams",
-    "Christian Correa",
-    "Robby Lucia",
-    "Nicholas"
-  ];
 
   // const startsWith = (a, b)=>a.toLowerCase().startsWith(b.toLowerCase());
   //
@@ -205,19 +182,57 @@ function Instructors (props) {
   // }
 
 
-  //     <AutoComplete
-  //       id="instructor"
-  //       items={instructors}
-  //       value={props.instructor}
-  //       onChange={props.onChange}
-  //     />
+  const instructors = [
+    "Aaron Hung",
+    "Matt Curinga",
+    "Elizabeth de Freitas",
+    "Tom Jennings",
+    "Ryan Sobeck",
+    "Kai Williams",
+    "Christian Correa",
+    "Robby Lucia",
+    "Nicholas"
+  ];
+
+  let id="instructor";
+
+  const makeChange = (item) => {
+    const target = {
+      id: id,
+      value: item,
+      name: props.name || id
+    }
+    let e = {target: target};
+    const f = (x)=> {
+      console.log("changing auto:", e);
+      props.onChange(e);
+    }
+    return f;
+  }
+
+  const Item = (val)=> {
+    const f = makeChange(val);
+    return (
+        <button key={val} className="dropdown-item" onClick={f} type="button">{val}</button>
+    )
+  }
+
+  const suggestions = _.map(instructors, Item)
+
 
   return (
-    <div className="col-md-2">
+      <div className="input-group mb-3">
         <TextInput className="form-control-sm" onChange={props.onChange} id="instructor"  placeholder="instructor" value={props.instructor} />
-    </div>
+        <div className="input-group-append">
+          <div className="btn-group">
+            <button type="button" className="btn btn-primary dropdown-toggle dropdown-toggle-split p-0 pl-1 pr-1 rounded-0 rounded-top-right rounded-bottom-right m-0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span className="sr-only">Toggle Dropdown</span>
+            </button>
+            <div className="dropdown-menu dropdown-menu-right">{suggestions}</div>
+          </div>
+        </div>
+      </div>
   )
-
 
 }
 
