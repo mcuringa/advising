@@ -14,40 +14,6 @@
   background: #4f2c1d !important;
 }
 
-
-.TopNav a, .TopNav button {
-  border-top: 2px solid transparent;
-  font-weight: bold;
-}
-
-.TopNav a.active {
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-}
-
-.SubNav {
-  border-radius: 6px;
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
-}
-
-.TopNav a:hover {
-  color: white !important;
-  border-top: 2px solid white;
-}
-
-.TopNav button {
-  border-style: none;
-  border-top: 2px solid transparent;
-}
-
-.TopNav button:hover {
-  border-style: none !important;
-  color: white !important;
-  margin: 0;
-  background-color: #4f2c1d !important;
-}
-
 select.form-control-sm {
   height: calc(1.5em + 0.5rem + 2px);
   padding: 0.25rem 0.5rem;

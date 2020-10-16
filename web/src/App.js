@@ -8,6 +8,7 @@ import ScheduleScreen from "./Schedule";
 import StudentsScreen from "./StudentList";
 import StudentDetail from "./StudentDetail";
 import Test from "./Test";
+import classNames from "classnames";
 
 
 import fb from "./firebase-tools.js";
@@ -15,7 +16,7 @@ import fb from "./firebase-tools.js";
 
 import "./App.css";
 
-import logo from "./res/logo.png";
+import logo from "./res/logo.svg";
 import letters from "./res/letters.png";
 
 
@@ -155,27 +156,9 @@ function Footer (props) {
 }
 
 
-function SubNav (props) {
-
-  const courseLinks = [
-    <NavLink key="list" className="nav-link pt-0 pb-0 text-brown" to="/courses">list</NavLink>,
-    <NavLink key="sched" className="nav-link pt-0 pb-0 text-brown" to="/courses/scheduling">scheduling</NavLink>,
-    <NavLink key="new" className="nav-link pt-0 pb-0 text-brown" to="/courses/new">new</NavLink>
-  ];
-  return (
-    <div className="SubNav d-flex bg-white">
-      <Switch>
-        <Route path="/courses">{courseLinks}</Route>
-        <Route path="/students">
-          <NavLink className="nav-link pt-0 pb-0 text-brown" to="/students">list</NavLink>
-          <NavLink className="nav-link pt-0 pb-0 text-brown" to="/students/new">new</NavLink>
-        </Route>
-      </Switch>
-    </div>
-  )
-}
 
 function TopNav (props) {
+  const navcss = "nav-link text-brown pt-1 mb-0 pb-0"
   return (
     <nav className="navbar navbar-expand-md container navbar-light">
       <Link to="/" className="navbar-brand">
@@ -194,21 +177,29 @@ function TopNav (props) {
       <div>
         <div id="TopMenu" className="collapse navbar-collapse m-0 p-0">
           <ul className="TopNav navbar-nav m-0 p-0">
-            <li className="nav-item mb-0 pb-0">
-              <NavLink activeClassName="active bg-white border-white disabled" className="nav-link text-brown pt-1 mb-0 pb-0" to="/courses">Courses</NavLink>
+            <li className="nav-item dropdown mb-0 pb-0">
+              <button className="nav-link dropdown-toggle text-brown btn btn-link font-weight-bold" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Courses</button>
+              <div className="dropdown-menu">
+                <NavLink key="list" className="nav-link pt-0 pb-0 text-brown" to="/courses">list courses</NavLink>
+                <NavLink key="sched" className="nav-link pt-0 pb-0 text-brown" to="/courses/scheduling">course scheduling</NavLink>
+                <NavLink key="new" className="nav-link pt-0 pb-0 text-brown" to="/courses/new">create course</NavLink>
+              </div>
+            </li>
+            <li className="nav-item dropdown mb-0 pb-0">
+              <button className="nav-link dropdown-toggle text-brown btn btn-link font-weight-bold" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Students</button>
+              <div className="dropdown-menu">
+                <NavLink className="nav-link pt-0 pb-0 text-brown" to="/students">list students</NavLink>
+                <NavLink className="nav-link pt-0 pb-0 text-brown" to="/students/new">add student</NavLink>
+              </div>
             </li>
             <li className="nav-item mb-0 pb-0">
-              <NavLink activeClassName="active bg-white border-white disabled" className="nav-link text-brown pt-1 mb-0 pb-0" to="/students">Students</NavLink>
+              <NavLink activeClassName="active bg-white disabled" className="nav-link text-brown btn btn-link font-weight-bold" to="/privacy">Privacy</NavLink>
             </li>
             <li className="nav-item mb-0 pb-0">
-              <NavLink activeClassName="active bg-white border-white disabled" className="nav-link text-brown pt-1 mb-0 pb-0" to="/privacy">Privacy</NavLink>
-            </li>
-            <li className="nav-item mb-0 pb-0">
-              <button className="btn nav-link btn-link text-brown pt-1 mb-0 pb-0" onClick={fb.signOut}>Sign out</button>
+              <button className="btn nav-link btn-link text-brown font-weight-bold" onClick={fb.signOut}>Sign out</button>
             </li>
           </ul>
         </div>
-        <SubNav />
       </div>
     </nav>
   )
