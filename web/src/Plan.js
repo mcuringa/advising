@@ -43,7 +43,7 @@ class Plan extends React.Component {
   }
 
   componentDidMount() {
-    if (!this.props.student_id) {
+    if (!this.props.student_id || this.props.student_id == "") {
       return;
     }
     const store = ([plans, courses])=>  {
@@ -163,7 +163,7 @@ class Plan extends React.Component {
   }
 
   render() {
-    if (!this.props.student_id) {
+    if (!this.props.student_id || this.props.student_id == "") {
       return null;
     }
 

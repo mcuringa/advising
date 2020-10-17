@@ -25,7 +25,7 @@ function StudentPlan(s) {
 function Student() {
   return {
     _id: null,
-    student_id: null,
+    student_id: "",
     first: "",
     last: "",
     email: "",
@@ -69,6 +69,20 @@ class StudentDetail extends React.Component {
 
   }
 
+  componentDidUpdate(prevProps) {
+    // console.log("update ==========================================")
+    // console.log("this.props", this.props);
+    // console.log("prevProps", prevProps);
+    if (this.props.path == "/students/new" && this.props.path != prevProps.path) {
+      console.log("switching to new student")
+      this.setState( {
+        "student": new Student(),
+        "loading": false
+        });
+    }
+  }
+
+
   render() {
 
     if (this.state.loading) {
@@ -80,20 +94,21 @@ class StudentDetail extends React.Component {
     console.log("student_id", student.student_id);
 
 
+    const plan = (student.student_id=="")?null:(<Plan student={student} student_id={student.student_id} />);
+
+
     return (
 
       <section className="StudentDetail mt-3">
         <div className="mb-2">
-          <Toggle css="card toggle-card-header" open={!student._id}
-              title={title}>
-
+          <Toggle css="card toggle-card-header" open={!student._id} title={title}>
             <div className="card-body">
               <StudentForm student={student} />
             </div>
           </Toggle>
         </div>
 
-        <Plan student={student} student_id={student.student_id} />
+        {plan}
       </section>
     )
   }
@@ -112,6 +127,20 @@ class StudentForm extends React.Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+  }
+
+
+  componentDidUpdate(prevProps) {
+    console.log("student form updated")
+    if (this.props.student.student_id  != prevProps.student.student_id) {
+      console.log("clearing form data")
+      this.setState( {
+        student: this.props.student,
+        loading: false,
+        dirty: false,
+        error: null
+        });
+    }
   }
 
   onSubmit(e) {
@@ -141,10 +170,8 @@ class StudentForm extends React.Component {
       const err = (e)=> {
         this.setState({loading: false, error: "Failed to create student. " + e.stack});
       }
-      let sp = net.post(sUrl, student).then(saved).catch(e);
-      let pp = net.post(pUrl, plan).then(saved).catch(e);
-
-
+      let sp = net.post(sUrl, student).then(saved).catch(err);
+      let pp = net.post(pUrl, plan).then(saved).catch(err);
     }
   }
 
@@ -158,14 +185,13 @@ class StudentForm extends React.Component {
 
   render () {
     let student = this.state.student;
-    let linkCss = classNames("pl-2", {"text-secondary": !student.student_id})
-    let emailInputCss = classNames("col-md-6", {"d-none":!student.student_id})
-    let emailLinkCss = classNames("col-md-6", {"d-none":student.student_id})
+    let linkCss = classNames("pl-2", {"text-secondary": !student._id})
 
 
-    const CLASS = "https://class.adelphi.edu/cgi-bin/web.asp?web=ADVISEE.INQ&STUDID=" + student.student_id;
-    const slate = "https://connect.adelphi.edu/manage/lookup/search?q=" + student.first + "+" + student.last;
-    const degree = "https://studentweb.adelphi.edu/selfservice-batch/audit/create.html?searchType=stuno&stuno=" + student.student_id;
+    const CLASS = (student._id)?"https://class.adelphi.edu/cgi-bin/web.asp?web=ADVISEE.INQ&STUDID=" + student.student_id:"#";
+    const slate =  (student._id)?"https://connect.adelphi.edu/manage/lookup/search?q=" + student.first + "+" + student.last:"#";
+    const degree = (student._id)?"https://studentweb.adelphi.edu/selfservice-batch/audit/create.html?searchType=stuno&stuno=" + student.student_id:"#";
+    const mailto = (student._id)?"mailto:" + student.email:"#";
 
     const toggle = (key)=> {
       return ()=> {
@@ -218,7 +244,7 @@ class StudentForm extends React.Component {
               required
               validationErrorMsg="must enter a student id"
               validationPassedMsg="looks good"
-              placeholder=""
+              placeholder="au student id"
               value={student.student_id}
               plaintext={student.student_id}
               onChange={this.handleChange} />
@@ -227,24 +253,22 @@ class StudentForm extends React.Component {
             <a className={linkCss} href={CLASS} title="open in CLASS">[CLASS]</a>
             <a className={linkCss} href={slate} title="open in Slate">[Slate]</a>
             <a className={linkCss} href={degree} title="open in degree audit">[Degree Audit]</a>
+            <a className={linkCss} href={mailto} title="send email to student">[email]</a>
           </div>
         </div>
         <div className="row mb-2">
           <div className="col-md-3 text-right font-weight-bold">
             email
           </div>
-          <div className={emailInputCss}>
+          <div className="col-md-6">
             <TextInput
               id="email"
               required
-              validationErrorMsg="new students need email"
+              validationErrorMsg="all students need valid email"
               validationPassedMsg="looks good"
-              placeholder=""
+              placeholder="mail.adelphi.edu email"
               value={student.email}
               onChange={this.handleChange} />
-          </div>
-          <div className={emailLinkCss}>
-            <a href={`mailto:${student.email}`} title="send an email"><span role="img" aria-label="email">📧</span> {student.email}</a>
           </div>
         </div>
         <div className="row mt-2">
