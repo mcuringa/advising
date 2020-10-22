@@ -2,11 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
 const auth = require("./auth.js");
-
-
 const db = require("./db.js");
-const app = express();
 const cors = require('cors');
+
+
+const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -20,6 +20,17 @@ const corsOptions = {
 app.use(cors(corsOptions));
 // restrict requests to authorized adelphi users
 app.use(auth.authRequest);
+
+
+// not needed anymore?
+// const secureAPI = (req, res, next)=> {
+//   app.options('/api/:collection', cors());
+//   app.options('/api/:collection/:id', cors());
+//   next();
+// }
+//
+// app.use(secureAPI);
+
 
 // basic REST functions
 // =========================
@@ -85,19 +96,8 @@ app.get('/api/test', dataTest);
 
 // =========================================== routes
 
-
-const secureAPI = (req, res, next)=> {
-  // res.header("Access-Control-Allow-Origin", "*");
-  app.options('/api/:collection', cors());
-  app.options('/api/:collection/:id', cors());
-  // app.options('/api/:collection', cors());
-  // app.options('/api/:collection/:id', cors());
-  next();
-}
-
-app.use(secureAPI);
-
 // rest routes
+app.get('/api/authorize', auth.authorize);
 app.get('/api/:collection', restList);
 app.get('/api/:collection/:id', restGet);
 app.post('/api/:collection', restPost);

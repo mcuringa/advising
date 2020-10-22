@@ -2,10 +2,4 @@ Adelphi Ed Tech Advising Privacy Policy
 =======================================
 
 
-This is the _privacy_ policy. This is **bold**.
-
-This is a list:
-
-- one
-- cat
-- horse
+Information on this site is confidential between students and Adelphi staff and faculty advisors.

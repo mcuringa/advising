@@ -1,13 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Link, NavLink, Switch } from "react-router-dom";
 import PageScreen from "./pages";
-import Authenticate from "./users/Auth.js";
+import Authenticate, {LookupUser} from "./users/Auth.js";
 import CourseScreen from "./CourseList";
 import CourseForm from "./CourseForm";
 import ScheduleScreen from "./Schedule";
 import StudentsScreen from "./StudentList";
 import StudentDetail from "./StudentDetail";
 import Test from "./Test";
+import SecurityError from "./net";
 import classNames from "classnames";
 
 
@@ -21,15 +22,26 @@ import letters from "./res/letters.png";
 
 
 function App() {
-  return (
-    <Router>
-      <div className="App">
-        <SecureRoutes />
-        <Route exact path="/privacy" render={(props) => <PageScreen {...props} page="privacy" />}/>
-        <Route exact path="/test"render={(props) => <Test />}/>
-      </div>
-    </Router>
-  );
+  try {
+    return (
+      <Router>
+        <div className="App">
+          <SecureRoutes />
+          <Route exact path="/privacy" render={(props) => <PageScreen page="privacy" />}/>
+          <Route exact path="/test"render={(props) => <Test />}/>
+        </div>
+      </Router>
+    );
+  }
+  catch (e) {
+    console.log("caught error in app:", e);
+    if (e instanceof SecurityError) {
+      return (<PageScreen page="security" />)
+    } else {
+      throw e;
+    }
+  }
+
 }
 
 class SecureRoutes  extends React.Component {
@@ -43,7 +55,7 @@ class SecureRoutes  extends React.Component {
   componentDidMount() {
 
     const watchUser = (user)=> {
-      // net.get("/api/updateuser").then((u)=>{this.setState({user: u});});
+      // net.get("/api/authenticate").then((u)=>{this.setState({user: u});});
       this.setState({user: user});
     }
     fb.getAuthUser(watchUser).then((u)=>{this.setState({user:u})});
@@ -69,7 +81,7 @@ class SecureRoutes  extends React.Component {
         <div className="container-fluid">
           <Switch>
             <PropsRoute exact path="/" component={Home} />
-            <PropsRoute path="/sign-in" component={SignIn} />
+            <PropsRoute path="/sign-in" component={LookupUser} />
             <PropsRoute path="/login" component={Authenticate} />
             <PropsRoute exact path="/courses/scheduling" component={ScheduleScreen} />
             <PropsRoute exact path="/courses" component={CourseScreen} />
@@ -86,13 +98,6 @@ class SecureRoutes  extends React.Component {
   }
 }
 
-const SignIn = (props) => {
-  console.log("user:", props.user);
-  if(!props.user && !props.user.email) {
-    return "loading...";
-  }
-  return "signed in";
-}
 
 /**
  * wrap up react-router props with other pass-through props

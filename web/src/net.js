@@ -23,6 +23,12 @@ const lf = localforage.createInstance({
 });
 
 
+function SecurityError(status, msg) {
+  this.status = status;
+  this.message = msg;
+  this.name = 'SecurityError';
+}
+
 const cache = async (method, url, response, data) => {
   if(method === "GET" && response.ok && _.includes(cacheUrls, url)) {
     const item = {data: data, ts: new Date().getTime()}
@@ -93,6 +99,12 @@ const doFetch = async (method, url, data) => {
 
   const promiseToReadResponse = (resolve, reject)=> {
     const handleResponse = (r) => {
+      if (r.status === 403) {
+        console.log("access denied on server")
+        console.log("response:", r);
+        window.location.pathname = '/access-denied'
+        // throw new SecurityError(r.status, r.statusText);
+      }
       const handleJson = (json)=> {
         if (method !== "GET") {
           json = json.data;
@@ -101,6 +113,7 @@ const doFetch = async (method, url, data) => {
           "data": json,
           "status": r.status
         }
+
         cache(method, url, r, json);
         resolve(msg);
       }
@@ -142,3 +155,4 @@ const net = {
 }
 
 export default net;
+export {SecurityError}

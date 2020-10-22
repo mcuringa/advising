@@ -35,8 +35,24 @@ const getFirebase = ()=> {
 const signOut = ()=> {
   const fb = getFirebase();
   fb.auth().signOut().then(()=>{
+    _user = null;
     updateUser(null);
   });
+}
+
+const refreshAuthToken = ()=> {
+  const refresh = (resolve, reject)=> {
+    if (!_user) {
+      reject(_user);
+    }
+
+    _user.getIdToken(true)
+
+    resolve(_user);
+
+  }
+
+  return new Promise(refresh);
 }
 
 const getAuthUser = (watch)=> {
@@ -47,10 +63,7 @@ const getAuthUser = (watch)=> {
       fb.auth().onAuthStateChanged(updateUser);
       fb.auth().onAuthStateChanged(watch);
     }
-
-
     resolve(_user);
-
   }
 
   return new Promise(auth);
@@ -58,6 +71,7 @@ const getAuthUser = (watch)=> {
 
 const fb = {
   getAuthUser: getAuthUser,
+  refreshAuthToken: refreshAuthToken,
   signOut: signOut,
   getFirebase: getFirebase
 };

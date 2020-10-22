@@ -94,7 +94,7 @@ class StudentDetail extends React.Component {
     console.log("student_id", student.student_id);
 
 
-    const plan = (student.student_id=="")?null:(<Plan student={student} student_id={student.student_id} />);
+    const plan = (!student._id)?null:(<Plan student={student} student_id={student.student_id} />);
 
 
     return (
@@ -131,8 +131,7 @@ class StudentForm extends React.Component {
 
 
   componentDidUpdate(prevProps) {
-    console.log("student form updated")
-    if (this.props.student.student_id  != prevProps.student.student_id) {
+    if (this.props.student._id  != prevProps.student._id) {
       console.log("clearing form data")
       this.setState( {
         student: this.props.student,
@@ -156,7 +155,7 @@ class StudentForm extends React.Component {
     this.setState({ loading: true });
     if (student._id){
       const url = "/api/students/" + student._id;
-      net.put(url, student).then(saved).catch((e)=>{
+      net.put(url, student).then(saved).catch((e)=> {
         console.log("failed to save student:", e);
         this.setState({loading: false, error: "Failed to save changes. " + e.stack});
       });
@@ -246,7 +245,7 @@ class StudentForm extends React.Component {
               validationPassedMsg="looks good"
               placeholder="au student id"
               value={student.student_id}
-              plaintext={student.student_id}
+              plaintext={student._id}
               onChange={this.handleChange} />
             </div>
             <div className="col-md-3">
